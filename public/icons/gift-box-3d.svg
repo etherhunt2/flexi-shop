@@ -1,0 +1,47 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="boxGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff9a9e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fecfef;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="ribbonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffecd2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fcb69f;stop-opacity:1" />
+    </linearGradient>
+    <filter id="giftShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="3" dy="5" stdDeviation="4" flood-color="rgba(0,0,0,0.25)"/>
+    </filter>
+  </defs>
+  
+  <!-- Box Base -->
+  <rect x="20" y="40" width="60" height="45" rx="3" 
+        fill="url(#boxGradient)" 
+        filter="url(#giftShadow)"/>
+  
+  <!-- Box Top -->
+  <rect x="20" y="35" width="60" height="10" rx="3" 
+        fill="#ff6b7a" opacity="0.9"/>
+  
+  <!-- Vertical Ribbon -->
+  <rect x="45" y="15" width="10" height="70" 
+        fill="url(#ribbonGradient)"/>
+  
+  <!-- Horizontal Ribbon -->
+  <rect x="15" y="45" width="70" height="10" 
+        fill="url(#ribbonGradient)"/>
+  
+  <!-- Bow Left -->
+  <path d="M40 15 Q35 10 30 15 Q35 20 40 15" 
+        fill="#fc8181"/>
+  
+  <!-- Bow Right -->
+  <path d="M60 15 Q65 10 70 15 Q65 20 60 15" 
+        fill="#fc8181"/>
+  
+  <!-- Bow Center -->
+  <circle cx="50" cy="15" r="3" fill="#e53e3e"/>
+  
+  <!-- Highlight -->
+  <rect x="25" y="50" width="15" height="8" rx="2" 
+        fill="rgba(255,255,255,0.3)"/>
+</svg>
