@@ -5,20 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
 import toast from 'react-hot-toast'
-import {
-  FiUser as UserIcon,
-  FiActivity as ActivityIcon,
-  FiClock as ClockIcon,
-  FiMapPin as MapPinIcon,
-  FiSmartphone as DeviceIcon,
-  FiEye as EyeIcon,
-  FiDownload as DownloadIcon,
-  FiFilter as FilterIcon,
-  FiRefreshCw as RefreshIcon,
-  FiShoppingCart as ShoppingCartIcon,
-  FiHeart as HeartIcon,
-  FiSearch as SearchIcon
-} from 'react-icons/fi'
+// Using emoji icons instead of react-icons/fi
 
 export default function UserActivityPage() {
   const { data: session, status } = useSession()
@@ -144,19 +131,19 @@ export default function UserActivityPage() {
   const getActionIcon = (action) => {
     switch (action) {
       case 'product_view':
-        return <EyeIcon className="w-4 h-4" />
+        return <span>👀</span>
       case 'add_to_cart':
-        return <ShoppingCartIcon className="w-4 h-4" />
+        return <span>🛒</span>
       case 'purchase':
         return <span className="text-green-600">💳</span>
       case 'wishlist_add':
-        return <HeartIcon className="w-4 h-4" />
+        return <span>❤️</span>
       case 'login':
-        return <UserIcon className="w-4 h-4" />
+        return <span>👤</span>
       case 'search':
-        return <SearchIcon className="w-4 h-4" />
+        return <span>🔍</span>
       default:
-        return <ActivityIcon className="w-4 h-4" />
+        return <span>📊</span>
     }
   }
 
@@ -253,14 +240,14 @@ export default function UserActivityPage() {
               onClick={() => handleBulkAction('refresh')}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
             >
-              <RefreshIcon className="w-4 h-4" />
+              <span>🔄</span>
               <span>Refresh</span>
             </button>
             <button
               onClick={() => handleBulkAction('export')}
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
             >
-              <DownloadIcon className="w-4 h-4" />
+              <span>📥</span>
               <span>Export</span>
             </button>
           </div>
@@ -270,7 +257,7 @@ export default function UserActivityPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <ActivityIcon className="w-8 h-8 text-blue-600" />
+              <span className="text-2xl">📊</span>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-500">Total Activities</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalActivities}</p>
@@ -280,7 +267,7 @@ export default function UserActivityPage() {
           
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <UserIcon className="w-8 h-8 text-green-600" />
+              <span className="text-2xl">👥</span>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-500">Unique Users</p>
                 <p className="text-2xl font-bold text-green-600">{stats.uniqueUsers}</p>
@@ -301,7 +288,7 @@ export default function UserActivityPage() {
           
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <DeviceIcon className="w-8 h-8 text-orange-600" />
+              <span className="text-2xl">📱</span>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-500">Mobile Users</p>
                 <p className="text-2xl font-bold text-orange-600">{stats.mobileUsers}</p>
@@ -314,7 +301,7 @@ export default function UserActivityPage() {
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <FilterIcon className="w-5 h-5 text-gray-400" />
+              <span className="text-gray-400">🔍</span>
               <span className="font-medium text-gray-700">Filter by action:</span>
               <select
                 value={filter}
@@ -373,15 +360,15 @@ export default function UserActivityPage() {
                       <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
                       <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
                         <span className="flex items-center">
-                          <ClockIcon className="w-3 h-3 mr-1" />
+                          <span className="mr-1">🕰️</span>
                           {new Date(activity.timestamp).toLocaleString()}
                         </span>
                         <span className="flex items-center">
-                          <MapPinIcon className="w-3 h-3 mr-1" />
+                          <span className="mr-1">📍</span>
                           {activity.location}
                         </span>
                         <span className="flex items-center">
-                          <DeviceIcon className="w-3 h-3 mr-1" />
+                          <span className="mr-1">📱</span>
                           {activity.device}
                         </span>
                         <span>IP: {activity.ipAddress}</span>

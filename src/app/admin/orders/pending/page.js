@@ -4,19 +4,9 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
+import Image from 'next/image'
 import toast from 'react-hot-toast'
-import {
-  FiClock as ClockIcon,
-  FiUser as UserIcon,
-  FiPackage as PackageIcon,
-  FiDollarSign as DollarSignIcon,
-  FiCheck as CheckIcon,
-  FiX as XIcon,
-  FiEye as EyeIcon,
-  FiRefreshCw as RefreshIcon,
-  FiDownload as DownloadIcon,
-  FiFilter as FilterIcon
-} from 'react-icons/fi'
+// Using emoji icons instead of react-icons/fi
 
 export default function PendingOrdersPage() {
   const { data: session, status } = useSession()
@@ -222,14 +212,14 @@ export default function PendingOrdersPage() {
               onClick={() => handleBulkAction('refresh')}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
             >
-              <RefreshIcon className="w-4 h-4" />
+              <span>🔄</span>
               <span>Refresh</span>
             </button>
             <button
               onClick={() => handleBulkAction('export')}
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
             >
-              <DownloadIcon className="w-4 h-4" />
+              <span>📥</span>
               <span>Export</span>
             </button>
           </div>
@@ -239,7 +229,7 @@ export default function PendingOrdersPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <ClockIcon className="w-8 h-8 text-orange-600" />
+              <span className="text-2xl">🕰️</span>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-500">Pending Orders</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
@@ -249,7 +239,7 @@ export default function PendingOrdersPage() {
           
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <DollarSignIcon className="w-8 h-8 text-green-600" />
+              <span className="text-2xl">💰</span>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-500">Total Value</p>
                 <p className="text-2xl font-bold text-green-600">${stats.totalValue.toLocaleString()}</p>
@@ -372,7 +362,7 @@ export default function PendingOrdersPage() {
                     <div className="text-sm text-gray-900">
                       {order.items.map((item, index) => (
                         <div key={index} className="flex items-center space-x-2 mb-1">
-                          <img src={item.image} alt={item.name} className="w-8 h-8 rounded object-cover" />
+                          <Image src={item.image} alt={item.name} width={32} height={32} className="w-8 h-8 rounded object-cover" />
                           <span>{item.name} (x{item.quantity})</span>
                         </div>
                       ))}
@@ -399,19 +389,19 @@ export default function PendingOrdersPage() {
                       onClick={() => handleOrderAction('view', order.id)}
                       className="text-blue-600 hover:text-blue-900"
                     >
-                      <EyeIcon className="w-4 h-4" />
+                      <span>👀</span>
                     </button>
                     <button
                       onClick={() => handleOrderAction('approve', order.id)}
                       className="text-green-600 hover:text-green-900"
                     >
-                      <CheckIcon className="w-4 h-4" />
+                      <span>✅</span>
                     </button>
                     <button
                       onClick={() => handleOrderAction('reject', order.id)}
                       className="text-red-600 hover:text-red-900"
                     >
-                      <XIcon className="w-4 h-4" />
+                      <span>❌</span>
                     </button>
                   </td>
                 </tr>

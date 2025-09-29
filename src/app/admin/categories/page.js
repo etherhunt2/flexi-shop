@@ -5,14 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
 import Link from 'next/link'
-// import {
-//   FiPlus as PlusIcon,
-//   FiEdit2 as PencilIcon,
-//   FiTrash2 as TrashIcon,
-//   FiEye as EyeIcon,
-//   FiFolder as FolderIcon,
-//   FiFolderOpen as FolderOpenIcon
-// } from 'react-icons/fi'
+// Using emoji icons instead of react-icons/fi
 import toast from 'react-hot-toast'
 
 export default function AdminCategoriesPage() {
@@ -164,9 +157,9 @@ export default function AdminCategoriesPage() {
             <div className="flex items-center" style={{ paddingLeft: `${level * 20}px` }}>
               {level > 0 && <span className="text-gray-400 mr-2">└─</span>}
               {category.subcategories?.length > 0 ? (
-                <FolderOpenIcon className="w-5 h-5 text-yellow-500 mr-2" />
+                <span className="text-yellow-500 mr-2">📂</span>
               ) : (
-                <FolderIcon className="w-5 h-5 text-gray-400 mr-2" />
+                <span className="text-gray-400 mr-2">📁</span>
               )}
               <div>
                 <div className="text-sm font-medium text-gray-900">{category.name}</div>
@@ -205,14 +198,14 @@ export default function AdminCategoriesPage() {
                 className="text-green-600 hover:text-green-900"
                 title="Edit"
               >
-                <PencilIcon className="w-5 h-5" />
+                <span>✏️</span>
               </button>
               <button
                 onClick={() => handleDelete(category.id)}
                 className="text-red-600 hover:text-red-900"
                 title="Delete"
               >
-                <TrashIcon className="w-5 h-5" />
+                <span>🗑️</span>
               </button>
             </div>
           </td>
@@ -257,7 +250,7 @@ export default function AdminCategoriesPage() {
             }}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
           >
-            {/* <PlusIcon className="w-5 h-5" /> */} +
+            <span className="mr-2">➕</span>
             <span>Add Category</span>
           </button>
         </div>

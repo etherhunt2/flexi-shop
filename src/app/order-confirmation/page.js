@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Layout from '@/components/Layout'
 import Link from 'next/link'
 import { CheckCircleIcon, TruckIcon, EnvelopeIcon, PrinterIcon } from '@heroicons/react/24/solid'
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const searchParams = useSearchParams()
   const [orderNumber, setOrderNumber] = useState('')
 
@@ -228,5 +228,19 @@ export default function OrderConfirmationPage() {
         </div>
       </div>
     </Layout>
+  )
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </Layout>
+    }>
+      <OrderConfirmationContent />
+    </Suspense>
   )
 }

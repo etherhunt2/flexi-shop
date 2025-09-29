@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { FiEye as EyeIcon, FiEyeOff as EyeSlashIcon } from 'react-icons/fi'
+// Using emoji icons instead of react-icons/fi
 import toast from 'react-hot-toast'
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [formData, setFormData] = useState({
@@ -128,9 +128,9 @@ export default function AdminLoginPage() {
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
                   {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                    <span className="text-gray-400">🙈</span>
                   ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
+                    <span className="text-gray-400">👁️</span>
                   )}
                 </button>
               </div>
@@ -200,5 +200,17 @@ export default function AdminLoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    }>
+      <AdminLoginForm />
+    </Suspense>
   )
 }

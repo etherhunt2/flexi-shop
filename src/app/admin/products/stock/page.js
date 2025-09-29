@@ -4,17 +4,9 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
+import Image from 'next/image'
 import toast from 'react-hot-toast'
-import {
-  FiPackage as PackageIcon,
-  FiAlertTriangle as AlertTriangleIcon,
-  FiTrendingUp as TrendingUpIcon,
-  FiTrendingDown as TrendingDownIcon,
-  FiEdit2 as EditIcon,
-  FiRefreshCw as RefreshIcon,
-  FiDownload as DownloadIcon,
-  FiFilter as FilterIcon
-} from 'react-icons/fi'
+// Using emoji icons instead of react-icons/fi
 
 export default function StockManagementPage() {
   const { data: session, status } = useSession()
@@ -133,13 +125,13 @@ export default function StockManagementPage() {
   const getStatusIcon = (status) => {
     switch (status) {
       case 'in_stock':
-        return <PackageIcon className="w-4 h-4" />
+        return <span>📦</span>
       case 'low_stock':
-        return <AlertTriangleIcon className="w-4 h-4" />
+        return <span>⚠️</span>
       case 'out_of_stock':
-        return <AlertTriangleIcon className="w-4 h-4" />
+        return <span>❌</span>
       default:
-        return <PackageIcon className="w-4 h-4" />
+        return <span>📦</span>
     }
   }
 
@@ -231,14 +223,14 @@ export default function StockManagementPage() {
               onClick={() => handleBulkAction('refresh')}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
             >
-              <RefreshIcon className="w-4 h-4" />
+              <span>🔄</span>
               <span>Refresh</span>
             </button>
             <button
               onClick={() => handleBulkAction('export')}
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
             >
-              <DownloadIcon className="w-4 h-4" />
+              <span>📥</span>
               <span>Export</span>
             </button>
           </div>
@@ -248,7 +240,7 @@ export default function StockManagementPage() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <PackageIcon className="w-8 h-8 text-blue-600" />
+              <span className="text-2xl">📦</span>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-500">Total Products</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalProducts}</p>
@@ -258,7 +250,7 @@ export default function StockManagementPage() {
           
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <TrendingUpIcon className="w-8 h-8 text-green-600" />
+              <span className="text-2xl">📈</span>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-500">In Stock</p>
                 <p className="text-2xl font-bold text-green-600">{stats.inStock}</p>
@@ -268,7 +260,7 @@ export default function StockManagementPage() {
           
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <AlertTriangleIcon className="w-8 h-8 text-yellow-600" />
+              <span className="text-2xl">⚠️</span>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-500">Low Stock</p>
                 <p className="text-2xl font-bold text-yellow-600">{stats.lowStock}</p>
@@ -278,7 +270,7 @@ export default function StockManagementPage() {
           
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <TrendingDownIcon className="w-8 h-8 text-red-600" />
+              <span className="text-2xl">📉</span>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-500">Out of Stock</p>
                 <p className="text-2xl font-bold text-red-600">{stats.outOfStock}</p>
@@ -300,7 +292,7 @@ export default function StockManagementPage() {
         {/* Filters */}
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="flex items-center space-x-4">
-            <FilterIcon className="w-5 h-5 text-gray-400" />
+            <span className="text-gray-400">🔍</span>
             <span className="font-medium text-gray-700">Filter by status:</span>
             <select
               value={filter}
@@ -354,7 +346,7 @@ export default function StockManagementPage() {
                 <tr key={product.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <img className="h-10 w-10 rounded-lg object-cover" src={product.image} alt={product.name} />
+                      <Image className="h-10 w-10 rounded-lg object-cover" src={product.image} alt={product.name} width={40} height={40} />
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{product.name}</div>
                         <div className="text-sm text-gray-500">{product.category}</div>
@@ -410,7 +402,7 @@ export default function StockManagementPage() {
                       }}
                       className="text-blue-600 hover:text-blue-900 flex items-center space-x-1"
                     >
-                      <EditIcon className="w-4 h-4" />
+                      <span>✏️</span>
                       <span>Edit Stock</span>
                     </button>
                   </td>

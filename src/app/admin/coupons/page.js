@@ -1,23 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
 import toast from 'react-hot-toast'
-import {
-  FiTag as TagIcon,
-  FiPercent as PercentIcon,
-  FiCalendar as CalendarIcon,
-  FiUsers as UsersIcon,
-  FiPlus as PlusIcon,
-  FiEdit2 as EditIcon,
-  FiTrash2 as TrashIcon,
-  FiEye as EyeIcon,
-  FiRefreshCw as RefreshIcon,
-  FiDownload as DownloadIcon,
-  FiCopy as CopyIcon
-} from 'react-icons/fi'
+// Using emoji icons instead of react-icons/fi
 
 export default function CouponsPage() {
   const { data: session, status } = useSession()
@@ -80,6 +68,14 @@ export default function CouponsPage() {
     }
   ]
 
+  const loadCoupons = useCallback(() => {
+    setLoading(true)
+    setTimeout(() => {
+      setCoupons(mockCouponsData)
+      setLoading(false)
+    }, 1000)
+  }, [])
+
   useEffect(() => {
     if (status === 'loading') return
     if (!session?.user || session.user.userType !== 'admin') {
@@ -87,15 +83,7 @@ export default function CouponsPage() {
       return
     }
     loadCoupons()
-  }, [session, status, router])
-
-  const loadCoupons = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setCoupons(mockCouponsData)
-      setLoading(false)
-    }, 1000)
-  }
+  }, [session, status, router, loadCoupons])
 
   const handleCouponAction = (action, couponId) => {
     switch (action) {
@@ -187,21 +175,21 @@ export default function CouponsPage() {
               onClick={() => handleBulkAction('create')}
               className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
             >
-              <PlusIcon className="w-4 h-4" />
+              <span>➕</span>
               <span>Create Coupon</span>
             </button>
             <button
               onClick={() => handleBulkAction('refresh')}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
             >
-              <RefreshIcon className="w-4 h-4" />
+              <span>🔄</span>
               <span>Refresh</span>
             </button>
             <button
               onClick={() => handleBulkAction('export')}
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
             >
-              <DownloadIcon className="w-4 h-4" />
+              <span>📥</span>
               <span>Export</span>
             </button>
           </div>
@@ -211,7 +199,7 @@ export default function CouponsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <TagIcon className="w-8 h-8 text-purple-600" />
+              <span className="text-2xl">🏷️</span>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-500">Total Coupons</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalCoupons}</p>
@@ -231,7 +219,7 @@ export default function CouponsPage() {
           
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <UsersIcon className="w-8 h-8 text-blue-600" />
+              <span className="text-2xl">👥</span>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-500">Total Usage</p>
                 <p className="text-2xl font-bold text-blue-600">{stats.totalUsage}</p>
@@ -276,7 +264,7 @@ export default function CouponsPage() {
                           onClick={() => handleCouponAction('copy', coupon.id)}
                           className="text-gray-400 hover:text-gray-600"
                         >
-                          <CopyIcon className="w-4 h-4" />
+                          <span>📋</span>
                         </button>
                       </div>
                       <div className="text-sm text-gray-500 mt-1">{coupon.description}</div>
@@ -313,13 +301,13 @@ export default function CouponsPage() {
                       onClick={() => handleCouponAction('view_usage', coupon.id)}
                       className="text-blue-600 hover:text-blue-900"
                     >
-                      <EyeIcon className="w-4 h-4" />
+                      <span>👁️</span>
                     </button>
                     <button
                       onClick={() => handleCouponAction('edit', coupon.id)}
                       className="text-yellow-600 hover:text-yellow-900"
                     >
-                      <EditIcon className="w-4 h-4" />
+                      <span>✏️</span>
                     </button>
                     {coupon.isActive ? (
                       <button
@@ -340,7 +328,7 @@ export default function CouponsPage() {
                       onClick={() => handleCouponAction('delete', coupon.id)}
                       className="text-red-600 hover:text-red-900"
                     >
-                      <TrashIcon className="w-4 h-4" />
+                      <span>🗑️</span>
                     </button>
                   </td>
                 </tr>

@@ -320,7 +320,7 @@ export default function Home() {
             </h2>
             
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Discover our handpicked selection of premium products that everyone's talking about. 
+              Discover our handpicked selection of premium products that everyone&apos;s talking about. 
               Quality guaranteed, style perfected.
             </p>
           </div>
@@ -375,7 +375,7 @@ export default function Home() {
             </h2>
             
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Shop from the world's most loved and trusted brands. Quality, innovation, 
+              Shop from the world&apos;s most loved and trusted brands. Quality, innovation, 
               and style that you can count on.
             </p>
           </div>

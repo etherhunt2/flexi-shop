@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Layout from '@/components/Layout'
 import Link from 'next/link'
@@ -10,7 +10,7 @@ import { HeartIcon as HeartOutlineIcon } from '@heroicons/react/24/outline'
 import { useCart } from '@/contexts/CartContext'
 import { useWishlist } from '@/contexts/WishlistContext'
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
@@ -393,5 +393,19 @@ export default function ProductsPage() {
         </div>
       </div>
     </Layout>
+  )
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </Layout>
+    }>
+      <ProductsContent />
+    </Suspense>
   )
 }

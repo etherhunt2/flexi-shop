@@ -1,24 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
 import Link from 'next/link'
 import Image from 'next/image'
-import {
-  FiPlus as PlusIcon,
-  FiEdit2 as PencilIcon,
-  FiTrash2 as TrashIcon,
-  FiEye as EyeIcon,
-  FiSearch as MagnifyingGlassIcon,
-  FiFilter as FunnelIcon,
-  FiArrowUp as ArrowUpIcon,
-  FiArrowDown as ArrowDownIcon
-} from 'react-icons/fi'
+// Using emoji icons instead of react-icons/fi
 import toast from 'react-hot-toast'
 
-export default function AdminProductsPage() {
+function AdminProductsContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -161,7 +152,7 @@ export default function AdminProductsPage() {
             href="/admin/products/create"
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
           >
-            <PlusIcon className="w-5 h-5" />
+            <span>➕</span>
             <span>Add Product</span>
           </Link>
         </div>
@@ -172,7 +163,7 @@ export default function AdminProductsPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
               <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
                 <input
                   type="text"
                   placeholder="Search products..."
@@ -265,7 +256,7 @@ export default function AdminProductsPage() {
                     >
                       <span>Price</span>
                       {filters.sortBy === 'price' && (
-                        filters.sortOrder === 'asc' ? <ArrowUpIcon className="w-4 h-4" /> : <ArrowDownIcon className="w-4 h-4" />
+                        filters.sortOrder === 'asc' ? <span>⬆️</span> : <span>⬇️</span>
                       )}
                     </button>
                   </th>
@@ -352,21 +343,21 @@ export default function AdminProductsPage() {
                           className="text-blue-600 hover:text-blue-900"
                           title="View"
                         >
-                          <EyeIcon className="w-5 h-5" />
+                          <span>👁️</span>
                         </Link>
                         <Link
                           href={`/admin/products/${product.id}/edit`}
                           className="text-green-600 hover:text-green-900"
                           title="Edit"
                         >
-                          <PencilIcon className="w-5 h-5" />
+                          <span>✏️</span>
                         </Link>
                         <button
                           onClick={() => handleDelete(product.id)}
                           className="text-red-600 hover:text-red-900"
                           title="Delete"
                         >
-                          <TrashIcon className="w-5 h-5" />
+                          <span>🗑️</span>
                         </button>
                       </div>
                     </td>
@@ -432,5 +423,19 @@ export default function AdminProductsPage() {
         )}
       </div>
     </AdminLayout>
+  )
+}
+
+export default function AdminProductsPage() {
+  return (
+    <Suspense fallback={
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </AdminLayout>
+    }>
+      <AdminProductsContent />
+    </Suspense>
   )
 }
