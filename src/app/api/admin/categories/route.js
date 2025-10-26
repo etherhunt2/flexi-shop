@@ -3,6 +3,16 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 
+// Function to generate slug from name
+function generateSlug(name) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9 -]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim()
+}
+
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
@@ -11,40 +21,46 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get categories with subcategories and product counts
+    // Get all categories for admin view with proper hierarchy
     const categories = await prisma.category.findMany({
-      where: { parent_id: null },
       include: {
-        subcategories: {
-          include: {
-            subcategories: true,
-            products: {
-              select: { id: true }
-            }
-          }
-        },
         products: {
           select: { id: true }
+        },
+        subcategories: {
+          include: {
+            products: {
+              select: { id: true }
+            },
+            subcategories: {
+              include: {
+                products: {
+                  select: { id: true }
+                }
+              }
+            }
+          }
         }
       },
       orderBy: { name: 'asc' }
     })
 
-    // Transform to include product counts and nested structure
-    const transformedCategories = categories.map(category => ({
-      ...category,
-      productCount: category.products.length,
-      subcategories: category.subcategories.map(sub => ({
-        ...sub,
-        productCount: sub.products.length,
-        subcategories: sub.subcategories.map(subsub => ({
-          ...subsub,
-          productCount: subsub.products?.length || 0
-        }))
-      }))
-    }))
+    // Transform categories to include product counts and maintain hierarchy
+    const transformedCategories = categories.map(category => {
+      // Recursively calculate product counts for nested subcategories
+      const processCategory = (cat) => ({
+        ...cat,
+        productCount: cat.products.length,
+        subcategories: cat.subcategories.map(processCategory)
+      })
 
-    return NextResponse.json({ categories: transformedCategories })
+      return processCategory(category)
+    })
+
+    // Filter to only root categories (those without parentId)
+    const rootCategories = transformedCategories.filter(category => !category.parentId)
+
+    return NextResponse.json(rootCategories)
 
   } catch (error) {
     console.error('Admin categories fetch error:', error)
@@ -71,9 +87,9 @@ export async function POST(request) {
 
     // Check if category name already exists
     const existingCategory = await prisma.category.findFirst({
-      where: { 
+      where: {
         name: data.name,
-        parent_id: data.parent_id || null
+        parentId: data.parentId || null
       }
     })
 
@@ -83,14 +99,29 @@ export async function POST(request) {
       }, { status: 400 })
     }
 
+    // Generate slug from name
+    const slug = generateSlug(data.name)
+
+    // Check if slug already exists (to avoid uniqueness constraint error)
+    const existingSlug = await prisma.category.findFirst({
+      where: { slug }
+    })
+
+    if (existingSlug) {
+      return NextResponse.json({
+        error: 'A category with this name already exists'
+      }, { status: 400 })
+    }
+
     // Create category
     const category = await prisma.category.create({
       data: {
         name: data.name,
+        slug: slug,
         description: data.description || null,
-        parent_id: data.parent_id || null,
+        parentId: data.parentId || null,
         visibility: data.visibility ?? 1,
-        is_special: data.is_special ? 1 : 0,
+        isSpecial: data.isSpecial ? 1 : 0,
         icon: data.icon || null
       }
     })

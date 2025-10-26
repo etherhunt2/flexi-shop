@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { isValidObjectId } from '@/lib/mongodb-utils'
 
 export async function PUT(request, { params }) {
   try {
@@ -13,6 +14,10 @@ export async function PUT(request, { params }) {
 
     const { id } = params
     const data = await request.json()
+    
+    if (!isValidObjectId(id)) {
+      return NextResponse.json({ error: 'Invalid category ID' }, { status: 400 })
+    }
 
     // Validate required fields
     if (!data.name) {
@@ -23,7 +28,7 @@ export async function PUT(request, { params }) {
 
     // Check if category exists
     const existingCategory = await prisma.category.findUnique({
-      where: { id: parseInt(id) }
+      where: { id: id }
     })
 
     if (!existingCategory) {
@@ -34,8 +39,8 @@ export async function PUT(request, { params }) {
     const nameExists = await prisma.category.findFirst({
       where: { 
         name: data.name,
-        parent_id: data.parent_id || null,
-        id: { not: parseInt(id) }
+        parentId: data.parentId || null,
+        id: { not: id }
       }
     })
 
@@ -47,13 +52,13 @@ export async function PUT(request, { params }) {
 
     // Update category
     const category = await prisma.category.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         name: data.name,
         description: data.description || null,
-        parent_id: data.parent_id || null,
+        parentId: data.parentId || null,
         visibility: data.visibility ?? 1,
-        is_special: data.is_special ? 1 : 0,
+        isSpecial: data.isSpecial ? 1 : 0,
         icon: data.icon || null
       }
     })
@@ -78,15 +83,19 @@ export async function DELETE(request, { params }) {
     }
 
     const { id } = params
+    
+    if (!isValidObjectId(id)) {
+      return NextResponse.json({ error: 'Invalid category ID' }, { status: 400 })
+    }
 
     // Check if category exists
     const existingCategory = await prisma.category.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         products: {
           select: { id: true }
         },
-        subcategories: {
+        children: {
           select: { id: true }
         }
       }
@@ -96,22 +105,22 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 })
     }
 
-    // Check if category has products or subcategories
+    // Check if category has products or children
     if (existingCategory.products.length > 0) {
       return NextResponse.json({ 
         error: 'Cannot delete category that has products associated with it' 
       }, { status: 400 })
     }
 
-    if (existingCategory.subcategories.length > 0) {
+    if (existingCategory.children.length > 0) {
       return NextResponse.json({ 
-        error: 'Cannot delete category that has subcategories' 
+        error: 'Cannot delete category that has children' 
       }, { status: 400 })
     }
 
     // Delete category
     await prisma.category.delete({
-      where: { id: parseInt(id) }
+      where: { id: id }
     })
 
     return NextResponse.json({ 

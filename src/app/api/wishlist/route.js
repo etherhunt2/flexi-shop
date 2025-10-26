@@ -14,9 +14,17 @@ export async function GET(request) {
       )
     }
 
+    // Validate that userId is a proper MongoDB ObjectId
+    if (!isValidObjectId(session.user.id)) {
+      return NextResponse.json(
+        { error: 'Invalid user ID format' },
+        { status: 400 }
+      )
+    }
+
     const wishlistItems = await prisma.wishlist.findMany({
       where: {
-        userId: parseInt(session.user.id)
+        userId: session.user.id
       },
       include: {
         product: {

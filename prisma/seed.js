@@ -49,6 +49,7 @@ async function main() {
         slug: 'apple',
         isTop: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
     prisma.brand.upsert({
@@ -59,6 +60,7 @@ async function main() {
         slug: 'samsung',
         isTop: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
     prisma.brand.upsert({
@@ -69,6 +71,7 @@ async function main() {
         slug: 'nike',
         isTop: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
     prisma.brand.upsert({
@@ -79,6 +82,7 @@ async function main() {
         slug: 'adidas',
         isTop: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
     prisma.brand.upsert({
@@ -89,6 +93,7 @@ async function main() {
         slug: 'sony',
         isTop: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
     prisma.brand.upsert({
@@ -99,6 +104,7 @@ async function main() {
         slug: 'lg',
         isTop: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
   ])
@@ -116,6 +122,7 @@ async function main() {
         visibility: 1,
         isSpecial: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
     prisma.category.upsert({
@@ -129,6 +136,7 @@ async function main() {
         visibility: 1,
         isSpecial: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
     prisma.category.upsert({
@@ -142,6 +150,7 @@ async function main() {
         visibility: 1,
         isSpecial: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
     prisma.category.upsert({
@@ -155,6 +164,7 @@ async function main() {
         visibility: 1,
         isSpecial: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
     prisma.category.upsert({
@@ -167,6 +177,7 @@ async function main() {
         description: 'Books, movies, and digital media',
         visibility: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
     prisma.category.upsert({
@@ -179,6 +190,7 @@ async function main() {
         description: 'Health and beauty products',
         visibility: 1,
         status: 1,
+        productIds: [], // Initialize empty array for MongoDB
       },
     }),
   ])
@@ -298,9 +310,9 @@ async function main() {
       update: {},
       create: {
         ...productInfo,
-        categories: {
-          connect: categoryIds.map(id => ({ id }))
-        }
+        categoryIds: categoryIds, // MongoDB uses direct array assignment
+        offerIds: [],
+        couponIds: []
       },
     })
 

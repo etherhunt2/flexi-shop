@@ -110,8 +110,8 @@ function AdminProductsContent() {
 
   const handleStatusToggle = async (productId, currentStatus) => {
     try {
-      const response = await fetch(`/api/admin/products/${productId}/status`, {
-        method: 'PATCH',
+      const response = await fetch(`/api/admin/products/${productId}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: currentStatus === 1 ? 0 : 1 })
       })
@@ -120,7 +120,8 @@ function AdminProductsContent() {
         toast.success('Product status updated')
         fetchProducts()
       } else {
-        toast.error('Failed to update status')
+        const errorData = await response.json()
+        toast.error(errorData.error || 'Failed to update status')
       }
     } catch (error) {
       console.error('Status update error:', error)

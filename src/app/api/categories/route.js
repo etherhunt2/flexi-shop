@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { parseFilterId } from '@/lib/mongodb-utils'
 
 export async function GET(request) {
   try {
@@ -13,7 +14,7 @@ export async function GET(request) {
     }
 
     if (parentId !== null) {
-      where.parentId = parentId ? parseInt(parentId) : null
+      where.parentId = parentId ? parseFilterId(parentId) : null
     }
 
     const categories = await prisma.category.findMany({
@@ -34,7 +35,7 @@ export async function GET(request) {
               brand: true,
               images: {
                 where: {
-                  assignProductAttributeId: 0
+                  assignProductAttributeId: ""
                 },
                 take: 1
               },
@@ -59,10 +60,8 @@ export async function GET(request) {
         const productCount = await prisma.product.count({
           where: {
             status: 1,
-            categories: {
-              some: {
-                id: category.id
-              }
+            categoryIds: {
+              has: category.id
             }
           }
         })
@@ -106,7 +105,8 @@ export async function POST(request) {
     const category = await prisma.category.create({
       data: {
         ...data,
-        slug: data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+        slug: data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        productIds: data.productIds || []
       }
     })
 

@@ -18,9 +18,9 @@ export default function AdminCategoriesPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    parent_id: null,
+    parentId: null,
     visibility: 1,
-    is_special: false,
+    isSpecial: false,
     icon: ''
   })
 
@@ -38,9 +38,9 @@ export default function AdminCategoriesPage() {
       setLoading(true)
       const response = await fetch('/api/admin/categories')
       const data = await response.json()
-      
+
       if (response.ok) {
-        setCategories(data.categories || [])
+        setCategories(data || [])
       }
     } catch (error) {
       console.error('Failed to fetch categories:', error)
@@ -52,17 +52,17 @@ export default function AdminCategoriesPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!formData.name) {
       toast.error('Category name is required')
       return
     }
 
     try {
-      const url = editingCategory 
+      const url = editingCategory
         ? `/api/admin/categories/${editingCategory.id}`
         : '/api/admin/categories'
-      
+
       const method = editingCategory ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
@@ -80,9 +80,9 @@ export default function AdminCategoriesPage() {
         setFormData({
           name: '',
           description: '',
-          parent_id: null,
+          parentId: null,
           visibility: 1,
-          is_special: false,
+          isSpecial: false,
           icon: ''
         })
         fetchCategories()
@@ -101,9 +101,9 @@ export default function AdminCategoriesPage() {
     setFormData({
       name: category.name,
       description: category.description || '',
-      parent_id: category.parent_id,
+      parentId: category.parentId,
       visibility: category.visibility,
-      is_special: category.is_special || false,
+      isSpecial: category.isSpecial || false,
       icon: category.icon || ''
     })
     setShowCreateModal(true)
@@ -175,17 +175,16 @@ export default function AdminCategoriesPage() {
           <td className="px-6 py-4 whitespace-nowrap">
             <button
               onClick={() => handleVisibilityToggle(category.id, category.visibility)}
-              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                category.visibility === 1 
-                  ? 'bg-green-100 text-green-800' 
+              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${category.visibility === 1
+                  ? 'bg-green-100 text-green-800'
                   : 'bg-red-100 text-red-800'
-              }`}
+                }`}
             >
               {category.visibility === 1 ? 'Visible' : 'Hidden'}
             </button>
           </td>
           <td className="px-6 py-4 whitespace-nowrap">
-            {category.is_special && (
+            {category.isSpecial && (
               <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
                 Special
               </span>
@@ -241,9 +240,9 @@ export default function AdminCategoriesPage() {
               setFormData({
                 name: '',
                 description: '',
-                parent_id: null,
+                parentId: null,
                 visibility: 1,
-                is_special: false,
+                isSpecial: false,
                 icon: ''
               })
               setShowCreateModal(true)
@@ -306,7 +305,7 @@ export default function AdminCategoriesPage() {
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 {editingCategory ? 'Edit Category' : 'Create Category'}
               </h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -340,15 +339,15 @@ export default function AdminCategoriesPage() {
                     Parent Category
                   </label>
                   <select
-                    value={formData.parent_id || ''}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      parent_id: e.target.value ? parseInt(e.target.value) : null 
+                    value={formData.parentId || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      parentId: e.target.value ? parseInt(e.target.value) : null
                     }))}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">No Parent (Main Category)</option>
-                    {categories.filter(cat => !cat.parent_id && cat.id !== editingCategory?.id).map((category) => (
+                    {categories.filter(cat => !cat.parentId && cat.id !== editingCategory?.id).map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
                       </option>
@@ -374,9 +373,9 @@ export default function AdminCategoriesPage() {
                     <input
                       type="checkbox"
                       checked={formData.visibility === 1}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        visibility: e.target.checked ? 1 : 0 
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        visibility: e.target.checked ? 1 : 0
                       }))}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
@@ -386,10 +385,10 @@ export default function AdminCategoriesPage() {
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      checked={formData.is_special}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        is_special: e.target.checked 
+                      checked={formData.isSpecial}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        isSpecial: e.target.checked
                       }))}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />

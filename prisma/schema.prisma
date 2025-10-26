@@ -6,12 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id                Int       @id @default(autoincrement())
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
   firstname         String?
   lastname          String?
   username          String?   @unique
@@ -20,8 +20,8 @@ model User {
   password          String
   countryCode       String?   @map("country_code")
   mobile            String?
-  refBy             Int?      @map("ref_by")
-  balance           Decimal   @default(0.00)
+  refBy             String?   @map("ref_by") @db.ObjectId
+  balance           Float     @default(0.00)
   image             String?
   address           Json?
   status            Int       @default(1) 
@@ -52,7 +52,7 @@ model User {
 }
 
 model Admin {
-  id            Int       @id @default(autoincrement())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   email         String    @unique
   username      String    @unique
@@ -67,8 +67,8 @@ model Admin {
 }
 
 model Category {
-  id          Int       @id @default(autoincrement())
-  parentId    Int?      @map("parent_id")
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  parentId    String?   @map("parent_id") @db.ObjectId
   name        String
   slug        String    @unique
   image       String?
@@ -84,15 +84,16 @@ model Category {
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  parent      Category? @relation("CategoryParent", fields: [parentId], references: [id])
+  parent      Category? @relation("CategoryParent", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children    Category[] @relation("CategoryParent")
-  products    Product[] @relation("ProductCategories")
+  productIds  String[]  @db.ObjectId
+  products    Product[] @relation(fields: [productIds], references: [id])
 
   @@map("categories")
 }
 
 model Brand {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   slug      String    @unique
   image     String?
@@ -109,7 +110,7 @@ model Brand {
 }
 
 model Product {
-  id                  Int       @id @default(autoincrement())
+  id                  String    @id @default(auto()) @map("_id") @db.ObjectId
   name                String
   slug                String    @unique
   model               String?
@@ -117,12 +118,12 @@ model Product {
   description         String?   
   extraDescriptions   Json?     @map("extra_descriptions")
   specification       Json?
-  brandId             Int       @map("brand_id")
+  brandId             String    @map("brand_id") @db.ObjectId
   sku                 String?
-  price               Decimal   
+  price               Float   
   discountType        Int       @default(1) @map("discount_type") 
-  discount            Decimal   @default(0.00) 
-  discountedPrice     Decimal   @default(0.00) @map("discounted_price") 
+  discount            Float     @default(0.00) 
+  discountedPrice     Float     @default(0.00) @map("discounted_price") 
   quantity            Int       @default(0)
   sold                Int       @default(0)
   minimumBuyQty       Int       @default(1) @map("minimum_buy_qty")
@@ -146,7 +147,8 @@ model Product {
 
   // Relations
   brand               Brand     @relation(fields: [brandId], references: [id])
-  categories          Category[] @relation("ProductCategories")
+  categoryIds         String[]  @db.ObjectId
+  categories          Category[] @relation(fields: [categoryIds], references: [id])
   images              ProductImage[]
   stocks              ProductStock[]
   reviews             ProductReview[]
@@ -154,16 +156,18 @@ model Product {
   orderDetails        OrderDetail[]
   carts               Cart[]
   wishlists           Wishlist[]
-  offers              Offer[]   @relation("OfferProducts")
-  coupons             Coupon[]  @relation("CouponProducts")
+  offerIds            String[]  @db.ObjectId
+  offers              Offer[]   @relation(fields: [offerIds], references: [id])
+  couponIds           String[]  @db.ObjectId
+  coupons             Coupon[]  @relation(fields: [couponIds], references: [id])
 
   @@map("products")
 }
 
 model ProductImage {
-  id                        Int    @id @default(autoincrement())
-  productId                 Int    @map("product_id")
-  assignProductAttributeId  Int    @default(0) @map("assign_product_attribute_id")
+  id                        String  @id @default(auto()) @map("_id") @db.ObjectId
+  productId                 String  @map("product_id") @db.ObjectId
+  assignProductAttributeId  String  @default("") @map("assign_product_attribute_id") @db.ObjectId
   image                     String
 
   // Relations
@@ -173,10 +177,10 @@ model ProductImage {
 }
 
 model ProductStock {
-  id        Int      @id @default(autoincrement())
-  productId Int      @map("product_id")
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @map("product_id") @db.ObjectId
   quantity  Int
-  unitPrice Decimal  @map("unit_price") 
+  unitPrice Float    @map("unit_price") 
   sku       String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -188,9 +192,9 @@ model ProductStock {
 }
 
 model ProductReview {
-  id        Int      @id @default(autoincrement())
-  productId Int      @map("product_id")
-  userId    Int      @map("user_id")
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @map("product_id") @db.ObjectId
+  userId    String   @map("user_id") @db.ObjectId
   rating    Int
   review    String?  
   status    Int      @default(1) 
@@ -205,7 +209,7 @@ model ProductReview {
 }
 
 model ProductAttribute {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   status    Int      @default(1) 
   createdAt DateTime @default(now()) @map("created_at")
@@ -218,11 +222,11 @@ model ProductAttribute {
 }
 
 model AssignProductAttribute {
-  id                Int      @id @default(autoincrement())
-  productId         Int      @map("product_id")
-  productAttributeId Int     @map("product_attribute_id")
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId         String   @map("product_id") @db.ObjectId
+  productAttributeId String  @map("product_attribute_id") @db.ObjectId
   value             String
-  extraPrice        Decimal  @default(0.00) @map("extra_price") 
+  extraPrice        Float    @default(0.00) @map("extra_price") 
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 
@@ -234,13 +238,13 @@ model AssignProductAttribute {
 }
 
 model Order {
-  id              Int       @id @default(autoincrement())
-  userId          Int       @map("user_id")
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String    @map("user_id") @db.ObjectId
   orderNumber     String    @unique @map("order_number")
-  totalAmount     Decimal   @map("total_amount") 
-  shippingCharge  Decimal   @default(0.00) @map("shipping_charge") 
+  totalAmount     Float     @map("total_amount") 
+  shippingCharge  Float     @default(0.00) @map("shipping_charge") 
   shippingMethod  String?   @map("shipping_method")
-  couponDiscount  Decimal   @default(0.00) @map("coupon_discount") 
+  couponDiscount  Float     @default(0.00) @map("coupon_discount") 
   status          Int       @default(0) 
   paymentStatus   Int       @default(0) @map("payment_status") 
   deliveryAddress Json?     @map("delivery_address")
@@ -259,12 +263,12 @@ model Order {
 }
 
 model OrderDetail {
-  id          Int     @id @default(autoincrement())
-  orderId     Int     @map("order_id")
-  productId   Int     @map("product_id")
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  orderId     String  @map("order_id") @db.ObjectId
+  productId   String  @map("product_id") @db.ObjectId
   quantity    Int
-  unitPrice   Decimal @map("unit_price") 
-  totalPrice  Decimal @map("total_price") 
+  unitPrice   Float   @map("unit_price") 
+  totalPrice  Float   @map("total_price") 
   productInfo Json?   @map("product_info")
 
   // Relations
@@ -275,26 +279,26 @@ model OrderDetail {
 }
 
 model Cart {
-  id          Int     @id @default(autoincrement())
-  userId      Int?    @map("user_id")
-  sessionId   String? @map("session_id")
-  productId   Int     @map("product_id")
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String?  @map("user_id") @db.ObjectId
+  sessionId   String?  @map("session_id")
+  productId   String   @map("product_id") @db.ObjectId
   attributes  Json?
-  quantity    Int     @default(1)
+  quantity    Int      @default(1)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relations
-  user        User?   @relation(fields: [userId], references: [id])
-  product     Product @relation(fields: [productId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+  product     Product  @relation(fields: [productId], references: [id])
 
   @@map("carts")
 }
 
 model Wishlist {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @map("user_id")
-  productId Int      @map("product_id")
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @map("user_id") @db.ObjectId
+  productId String   @map("product_id") @db.ObjectId
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -307,13 +311,13 @@ model Wishlist {
 }
 
 model Coupon {
-  id            Int       @id @default(autoincrement())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   code          String    @unique
   type          Int        // 1 = percentage, 2 = fixed
-  discount      Decimal   
-  minimumAmount Decimal   @default(0.00) @map("minimum_amount") 
-  maximumAmount Decimal   @default(0.00) @map("maximum_amount") 
+  discount      Float   
+  minimumAmount Float     @default(0.00) @map("minimum_amount") 
+  maximumAmount Float     @default(0.00) @map("maximum_amount") 
   startDate     DateTime  @map("start_date")
   endDate       DateTime  @map("end_date")
   usageLimit    Int       @default(0) @map("usage_limit")
@@ -323,18 +327,19 @@ model Coupon {
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  products      Product[] @relation("CouponProducts")
-  appliedCoupons AppliedCoupon[]
+  productIds      String[]  @db.ObjectId
+  products        Product[] @relation(fields: [productIds], references: [id])
+  appliedCoupons  AppliedCoupon[]
 
   @@map("coupons")
 }
 
 model AppliedCoupon {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @map("user_id")
-  orderId   Int      @unique @map("order_id")
-  couponId  Int      @map("coupon_id")
-  discount  Decimal  
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @map("user_id") @db.ObjectId
+  orderId   String   @unique @map("order_id") @db.ObjectId
+  couponId  String   @map("coupon_id") @db.ObjectId
+  discount  Float  
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -347,11 +352,11 @@ model AppliedCoupon {
 }
 
 model Offer {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   slug        String    @unique
   image       String?
-  discount    Decimal   
+  discount    Float   
   discountType Int      @map("discount_type") 
   startDate   DateTime  @map("start_date")
   endDate     DateTime  @map("end_date")
@@ -360,17 +365,18 @@ model Offer {
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  products    Product[] @relation("OfferProducts")
+  productIds  String[]  @db.ObjectId
+  products    Product[] @relation(fields: [productIds], references: [id])
 
   @@map("offers")
 }
 
 model ShippingMethod {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
   duration    String?
-  charge      Decimal
-  status      Int     @default(1)
+  charge      Float
+  status      Int      @default(1)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -378,17 +384,17 @@ model ShippingMethod {
 }
 
 model Gateway {
-  id          Int     @id @default(autoincrement())
-  formId      Int     @map("form_id")
-  code        String  @unique
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  formId      Int      @map("form_id")
+  code        String   @unique
   name        String
   alias       String?
-  status      Int     @default(1) 
+  status      Int      @default(1) 
   gatewayParameters Json? @map("gateway_parameters")
   supportedCurrencies String? @map("supported_currencies")
-  crypto      Int     @default(0) 
-  extraInfo   Json?   @map("extra_info")
-  description String? 
+  crypto      Int      @default(0) 
+  extraInfo   Json?    @map("extra_info")
+  description String?  
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -399,17 +405,17 @@ model Gateway {
 }
 
 model GatewayCurrency {
-  id            Int     @id @default(autoincrement())
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   currency      String
   symbol        String
-  methodCode    Int     @map("method_code")
+  methodCode    String  @map("method_code") @db.ObjectId
   gatewayAlias  String  @map("gateway_alias")
-  minAmount     Decimal @default(0.00) @map("min_amount") 
-  maxAmount     Decimal @default(0.00) @map("max_amount") 
-  percentCharge Decimal @default(0.00) @map("percent_charge") 
-  fixedCharge   Decimal @default(0.00) @map("fixed_charge") 
-  rate          Decimal @default(0.00) 
+  minAmount     Float   @default(0.00) @map("min_amount") 
+  maxAmount     Float   @default(0.00) @map("max_amount") 
+  percentCharge Float   @default(0.00) @map("percent_charge") 
+  fixedCharge   Float   @default(0.00) @map("fixed_charge") 
+  rate          Float   @default(0.00) 
   image         String?
   gatewayParameter Json? @map("gateway_parameter")
 
@@ -420,15 +426,15 @@ model GatewayCurrency {
 }
 
 model Deposit {
-  id            Int       @id @default(autoincrement())
-  userId        Int       @map("user_id")
-  orderId       Int?      @unique @map("order_id")
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @map("user_id") @db.ObjectId
+  orderId       String?   @unique @map("order_id") @db.ObjectId
   methodCode    Int       @map("method_code")
-  amount        Decimal   
+  amount        Float   
   methodCurrency String   @map("method_currency")
-  charge        Decimal   @default(0.00) 
-  rate          Decimal   @default(0.00) 
-  finalAmount   Decimal   @map("final_amount") 
+  charge        Float     @default(0.00) 
+  rate          Float     @default(0.00) 
+  finalAmount   Float     @map("final_amount") 
   detail        Json?
   btcAmount     String?   @map("btc_amount")
   btcWallet     String?   @map("btc_wallet")
@@ -448,11 +454,11 @@ model Deposit {
 }
 
 model Transaction {
-  id          Int       @id @default(autoincrement())
-  userId      Int       @map("user_id")
-  amount      Decimal   
-  charge      Decimal   @default(0.00) 
-  postBalance Decimal   @map("post_balance") 
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String    @map("user_id") @db.ObjectId
+  amount      Float   
+  charge      Float     @default(0.00) 
+  postBalance Float     @map("post_balance") 
   trxType     String    @map("trx_type") 
   trx         String    @unique
   details     String?
@@ -467,8 +473,8 @@ model Transaction {
 }
 
 model UserLogin {
-  id         Int      @id @default(autoincrement())
-  userId     Int      @map("user_id")
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @map("user_id") @db.ObjectId
   userIp     String   @map("user_ip")
   city       String?
   country    String?
@@ -486,7 +492,7 @@ model UserLogin {
 }
 
 model GeneralSetting {
-  id    Int    @id @default(autoincrement())
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
   key   String @unique
   value Json?
 
@@ -494,7 +500,7 @@ model GeneralSetting {
 }
 
 model Page {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   slug        String
   tempname    String?
@@ -507,7 +513,7 @@ model Page {
 }
 
 model Language {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   code      String   @unique
   isDefault Int      @default(0) @map("is_default") 
@@ -519,7 +525,7 @@ model Language {
 }
 
 model Subscriber {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -528,8 +534,8 @@ model Subscriber {
 }
 
 model SupportTicket {
-  id        Int      @id @default(autoincrement())
-  userId    Int?     @map("user_id")
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?  @map("user_id") @db.ObjectId
   name      String
   email     String
   ticket    String   @unique
@@ -548,9 +554,9 @@ model SupportTicket {
 }
 
 model SupportMessage {
-  id              Int      @id @default(autoincrement())
-  supportTicketId Int      @map("support_ticket_id")
-  adminId         Int?     @map("admin_id")
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  supportTicketId String   @map("support_ticket_id") @db.ObjectId
+  adminId         String?  @map("admin_id") @db.ObjectId
   message         String   
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")

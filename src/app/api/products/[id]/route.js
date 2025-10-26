@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { isValidObjectId } from '@/lib/mongodb-utils'
 
 export async function GET(request, { params }) {
   try {
     const { id } = params
     
+    if (!isValidObjectId(id)) {
+      return NextResponse.json(
+        { error: 'Invalid product ID' },
+        { status: 400 }
+      )
+    }
+    
     const product = await prisma.product.findUnique({
       where: { 
-        id: parseInt(id) 
+        id: id 
       },
       include: {
         brand: true,
@@ -59,12 +67,8 @@ export async function GET(request, { params }) {
             OR: [
               { brandId: product.brandId },
               {
-                categories: {
-                  some: {
-                    id: {
-                      in: product.categories.map(cat => cat.id)
-                    }
-                  }
+                categoryIds: {
+                  hasSome: product.categoryIds
                 }
               }
             ]
@@ -81,7 +85,7 @@ export async function GET(request, { params }) {
         },
         images: {
           where: {
-            assignProductAttributeId: 0
+            assignProductAttributeId: ""
           },
           take: 1
         }
@@ -115,11 +119,18 @@ export async function PUT(request, { params }) {
     const { id } = params
     const data = await request.json()
     
+    if (!isValidObjectId(id)) {
+      return NextResponse.json(
+        { error: 'Invalid product ID' },
+        { status: 400 }
+      )
+    }
+    
     // This would typically require admin authentication
     // Add authentication middleware here
     
     const product = await prisma.product.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data,
       include: {
         brand: true,
@@ -141,11 +152,18 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = params
     
+    if (!isValidObjectId(id)) {
+      return NextResponse.json(
+        { error: 'Invalid product ID' },
+        { status: 400 }
+      )
+    }
+    
     // This would typically require admin authentication
     // Add authentication middleware here
     
     await prisma.product.delete({
-      where: { id: parseInt(id) }
+      where: { id: id }
     })
 
     return NextResponse.json({ message: 'Product deleted successfully' })

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { parseFilterId } from '@/lib/mongodb-utils'
 
 export async function GET(request) {
   try {
@@ -25,15 +26,19 @@ export async function GET(request) {
     }
 
     if (category) {
-      where.categories = {
-        some: {
-          id: parseInt(category)
+      const categoryId = parseFilterId(category);
+      if (categoryId) {
+        where.categoryIds = {
+          has: categoryId
         }
       }
     }
 
     if (brand) {
-      where.brandId = parseInt(brand)
+      const brandId = parseFilterId(brand);
+      if (brandId) {
+        where.brandId = brandId
+      }
     }
 
     if (search) {
@@ -76,7 +81,7 @@ export async function GET(request) {
           },
           images: {
             where: {
-              assignProductAttributeId: 0
+              assignProductAttributeId: ""
             },
             take: 1
           }

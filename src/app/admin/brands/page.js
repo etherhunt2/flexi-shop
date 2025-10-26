@@ -23,7 +23,6 @@ export default function AdminBrandsPage() {
   const [editingBrand, setEditingBrand] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
     image: '',
     isTop: false,
     status: 1
@@ -84,7 +83,7 @@ export default function AdminBrandsPage() {
         setEditingBrand(null)
         setFormData({
           name: '',
-          description: '',
+          // description: '',
           image: '',
           isTop: false,
           status: 1
@@ -104,7 +103,7 @@ export default function AdminBrandsPage() {
     setEditingBrand(brand)
     setFormData({
       name: brand.name,
-      description: brand.description || '',
+      // description: brand.description || '',
       image: brand.image || '',
       isTop: brand.isTop || false,
       status: brand.status
@@ -124,7 +123,8 @@ export default function AdminBrandsPage() {
         toast.success('Brand deleted successfully')
         fetchBrands()
       } else {
-        toast.error('Failed to delete brand')
+        const errorData = await response.json()
+        toast.error(errorData.error || 'Failed to delete brand')
       }
     } catch (error) {
       console.error('Delete error:', error)
@@ -161,7 +161,7 @@ export default function AdminBrandsPage() {
               setEditingBrand(null)
               setFormData({
                 name: '',
-                description: '',
+                // description: '',
                 image: '',
                 isTop: false,
                 status: 1
@@ -309,7 +309,7 @@ export default function AdminBrandsPage() {
                   />
                 </div>
 
-                <div>
+                {/*<div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Description
                   </label>
@@ -320,7 +320,7 @@ export default function AdminBrandsPage() {
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Brand description"
                   />
-                </div>
+                </div>*/}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

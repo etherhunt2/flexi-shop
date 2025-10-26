@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { isValidObjectId } from '@/lib/mongodb-utils'
 
 export async function GET(request) {
   try {
@@ -10,9 +11,16 @@ export async function GET(request) {
     const sessionId = searchParams.get('sessionId')
 
     let where = {}
-    
+
     if (session?.user?.id) {
-      where.userId = parseInt(session.user.id)
+      // Validate that userId is a proper MongoDB ObjectId
+      if (!isValidObjectId(session.user.id)) {
+        return NextResponse.json(
+          { error: 'Invalid user ID format' },
+          { status: 400 }
+        )
+      }
+      where.userId = session.user.id
     } else if (sessionId) {
       where.sessionId = sessionId
     } else {
@@ -27,7 +35,7 @@ export async function GET(request) {
             brand: true,
             images: {
               where: {
-                assignProductAttributeId: 0
+                assignProductAttributeId: ""
               },
               take: 1
             }
@@ -59,9 +67,9 @@ export async function POST(request) {
     const session = await getServerSession(authOptions)
     const { productId, quantity = 1, attributes, sessionId } = await request.json()
 
-    if (!productId) {
+    if (!productId || !isValidObjectId(productId)) {
       return NextResponse.json(
-        { error: 'Product ID is required' },
+        { error: 'Valid Product ID is required' },
         { status: 400 }
       )
     }
@@ -93,7 +101,14 @@ export async function POST(request) {
     }
 
     if (session?.user?.id) {
-      cartData.userId = parseInt(session.user.id)
+      // Validate that userId is a proper MongoDB ObjectId
+      if (!isValidObjectId(session.user.id)) {
+        return NextResponse.json(
+          { error: 'Invalid user ID format' },
+          { status: 400 }
+        )
+      }
+      cartData.userId = session.user.id
     } else if (sessionId) {
       cartData.sessionId = sessionId
     } else {
@@ -104,11 +119,22 @@ export async function POST(request) {
     }
 
     // Check if item already exists in cart
-    const existingItem = await prisma.cart.findFirst({
-      where: {
-        productId,
-        ...(session?.user?.id ? { userId: parseInt(session.user.id) } : { sessionId })
+    let existingWhere = { productId }
+    if (session?.user?.id) {
+      // Validate that userId is a proper MongoDB ObjectId
+      if (!isValidObjectId(session.user.id)) {
+        return NextResponse.json(
+          { error: 'Invalid user ID format' },
+          { status: 400 }
+        )
       }
+      existingWhere.userId = session.user.id
+    } else if (sessionId) {
+      existingWhere.sessionId = sessionId
+    }
+
+    const existingItem = await prisma.cart.findFirst({
+      where: existingWhere
     })
 
     let cartItem
@@ -123,7 +149,7 @@ export async function POST(request) {
               brand: true,
               images: {
                 where: {
-                  assignProductAttributeId: 0
+                  assignProductAttributeId: ""
                 },
                 take: 1
               }
@@ -141,7 +167,7 @@ export async function POST(request) {
               brand: true,
               images: {
                 where: {
-                  assignProductAttributeId: 0
+                  assignProductAttributeId: ""
                 },
                 take: 1
               }

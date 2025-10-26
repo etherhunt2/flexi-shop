@@ -148,8 +148,8 @@ export default function CreateProductPage() {
         toast.success('Product created successfully!')
         router.push('/admin/products')
       } else {
-        const error = await response.json()
-        toast.error(error.message || 'Failed to create product')
+        const errorData = await response.json()
+        toast.error(errorData.error || 'Failed to create product')
       }
     } catch (error) {
       console.error('Create error:', error)

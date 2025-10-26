@@ -58,7 +58,6 @@ export async function PUT(request, { params }) {
       data: {
         name: data.name,
         slug: slug,
-        description: data.description || null,
         image: data.image || null,
         isTop: data.isTop ? 1 : 0,
         status: data.status ?? 1

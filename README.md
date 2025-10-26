@@ -42,7 +42,7 @@ A modern, full-featured e-commerce application built with Next.js 15, converted 
 
 - **Frontend**: Next.js 15, React 19, Tailwind CSS
 - **Backend**: Next.js API Routes (Server-side)
-- **Database**: SQLite with Prisma ORM (easily switchable to PostgreSQL/MySQL)
+- **Database**: MongoDB with Prisma ORM
 - **Authentication**: NextAuth.js with JWT strategy
 - **State Management**: React Context API + SWR for data fetching
 - **Styling**: Tailwind CSS with custom components
@@ -85,6 +85,28 @@ A modern, full-featured e-commerce application built with Next.js 15, converted 
 
 - Node.js 18+ 
 - npm or yarn
+- MongoDB (local installation or MongoDB Atlas account)
+
+### MongoDB Setup
+
+1. **Local MongoDB**:
+   - Install MongoDB locally from [mongodb.com](https://www.mongodb.com/try/download/community)
+   - Start MongoDB service:
+     ```bash
+     # On macOS with Homebrew
+     brew services start mongodb-community
+     
+     # On Ubuntu/Debian
+     sudo systemctl start mongod
+     
+     # On Windows
+     net start MongoDB
+     ```
+
+2. **MongoDB Atlas (Cloud)**:
+   - Create a free account at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+   - Create a new cluster
+   - Get your connection string from the cluster dashboard
 
 ### Installation
 
@@ -101,13 +123,28 @@ npm install
 
 3. **Set up environment variables:**
 ```bash
-cp .env.example .env
+# Create .env file
+touch .env
+
+# Add MongoDB connection string
+echo 'DATABASE_URL="mongodb://localhost:27017/pixshop"' >> .env
+echo 'NEXTAUTH_URL="http://localhost:3000"' >> .env
+echo 'NEXTAUTH_SECRET="your-secret-key-change-this-in-production"' >> .env
+echo 'JWT_SECRET="your-jwt-secret-change-this-in-production"' >> .env
+
+# For MongoDB Atlas, use:
+# DATABASE_URL="mongodb+srv://<username>:<password>@<cluster>.mongodb.net/pixshop?retryWrites=true&w=majority"
 ```
 
 4. **Set up the database:**
 ```bash
+# Generate Prisma client
 npx prisma generate
+
+# Push schema to MongoDB
 npx prisma db push
+
+# Seed the database with sample data
 npm run db:seed
 ```
 

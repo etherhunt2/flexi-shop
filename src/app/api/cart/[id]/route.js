@@ -2,12 +2,20 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { isValidObjectId } from '@/lib/mongodb-utils'
 
 export async function PUT(request, { params }) {
   try {
     const session = await getServerSession(authOptions)
     const { id } = params
     const { quantity } = await request.json()
+    
+    if (!isValidObjectId(id)) {
+      return NextResponse.json(
+        { error: 'Invalid cart item ID' },
+        { status: 400 }
+      )
+    }
 
     if (!quantity || quantity < 1) {
       return NextResponse.json(
@@ -18,7 +26,7 @@ export async function PUT(request, { params }) {
 
     // Find cart item and verify ownership
     const cartItem = await prisma.cart.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: { product: true }
     })
 
@@ -31,7 +39,7 @@ export async function PUT(request, { params }) {
 
     // Verify ownership
     const isOwner = session?.user?.id 
-      ? cartItem.userId === parseInt(session.user.id)
+      ? cartItem.userId === session.user.id
       : cartItem.sessionId === request.headers.get('x-session-id')
 
     if (!isOwner) {
@@ -50,7 +58,7 @@ export async function PUT(request, { params }) {
     }
 
     const updatedItem = await prisma.cart.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: { quantity },
       include: {
         product: {
@@ -58,7 +66,7 @@ export async function PUT(request, { params }) {
             brand: true,
             images: {
               where: {
-                assignProductAttributeId: 0
+                assignProductAttributeId: ""
               },
               take: 1
             }
@@ -81,10 +89,17 @@ export async function DELETE(request, { params }) {
   try {
     const session = await getServerSession(authOptions)
     const { id } = params
+    
+    if (!isValidObjectId(id)) {
+      return NextResponse.json(
+        { error: 'Invalid cart item ID' },
+        { status: 400 }
+      )
+    }
 
     // Find cart item and verify ownership
     const cartItem = await prisma.cart.findUnique({
-      where: { id: parseInt(id) }
+      where: { id: id }
     })
 
     if (!cartItem) {
@@ -96,7 +111,7 @@ export async function DELETE(request, { params }) {
 
     // Verify ownership
     const isOwner = session?.user?.id 
-      ? cartItem.userId === parseInt(session.user.id)
+      ? cartItem.userId === session.user.id
       : cartItem.sessionId === request.headers.get('x-session-id')
 
     if (!isOwner) {
@@ -107,7 +122,7 @@ export async function DELETE(request, { params }) {
     }
 
     await prisma.cart.delete({
-      where: { id: parseInt(id) }
+      where: { id: id }
     })
 
     return NextResponse.json({ message: 'Item removed from cart' })
