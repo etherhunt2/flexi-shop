@@ -4,6 +4,20 @@ import bcrypt from 'bcryptjs'
 import prisma from './prisma'
 
 export const authOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
+  useSecureCookies: process.env.NODE_ENV === 'production',
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    }
+  },
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -14,12 +28,12 @@ export const authOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          throw new Error('Missing credentials')
         }
 
         try {
           let user = null
-          
+
           if (credentials.userType === 'admin') {
             user = await prisma.admin.findUnique({
               where: { email: credentials.email }
@@ -31,17 +45,17 @@ export const authOptions = {
           }
 
           if (!user) {
-            return null
+            throw new Error('User not found')
           }
 
           const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
           if (!isPasswordValid) {
-            return null
+            throw new Error('Invalid credentials')
           }
 
           return {
-            id: user.id.toString(),
+            id: user.id, // UUID is already a string
             email: user.email,
             name: credentials.userType === 'admin' ? user.name : `${user.firstname} ${user.lastname}`,
             userType: credentials.userType || 'user',
@@ -70,11 +84,30 @@ export const authOptions = {
       session.user.userType = token.userType
       session.user.status = token.status
       return session
+    },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
     }
   },
   pages: {
     signIn: '/auth/login',
-    signUp: '/auth/register'
+    signUp: '/auth/register',
+    error: '/auth/error'
+  },
+  events: {
+    async signIn({ user, account, profile, isNewUser }) {
+      console.log("Sign in successful", { user, account })
+    },
+    async signOut({ session, token }) {
+      console.log("Sign out successful")
+    },
+    async error(error) {
+      console.error("Authentication error", error)
+    }
   }
 }
 

@@ -6,7 +6,7 @@ import prisma from '@/lib/prisma'
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -22,7 +22,7 @@ export async function GET(request) {
     const skip = (page - 1) * limit
 
     let where = {
-      userId: parseInt(session.user.id)
+      userId: session.user.id // Using UUID directly
     }
 
     if (status !== null && status !== undefined) {
@@ -84,7 +84,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -154,11 +154,11 @@ export async function POST(request) {
         where: { code: couponCode }
       })
 
-      if (coupon && coupon.status === 1 && 
-          new Date() >= coupon.startDate && 
-          new Date() <= coupon.endDate &&
-          coupon.used < coupon.usageLimit) {
-        
+      if (coupon && coupon.status === 1 &&
+        new Date() >= coupon.startDate &&
+        new Date() <= coupon.endDate &&
+        coupon.used < coupon.usageLimit) {
+
         if (subtotal >= coupon.minimumAmount) {
           if (coupon.type === 1) { // percentage
             couponDiscount = (subtotal * coupon.discount) / 100
@@ -183,7 +183,7 @@ export async function POST(request) {
       // Create order
       const newOrder = await tx.order.create({
         data: {
-          userId: parseInt(session.user.id),
+          userId: session.user.id, // Using UUID directly
           orderNumber,
           totalAmount,
           shippingCharge,
@@ -232,7 +232,7 @@ export async function POST(request) {
       if (appliedCoupon) {
         await tx.appliedCoupon.create({
           data: {
-            userId: parseInt(session.user.id),
+            userId: session.user.id, // Using UUID directly
             orderId: newOrder.id,
             couponId: appliedCoupon.id,
             discount: couponDiscount
@@ -245,13 +245,28 @@ export async function POST(request) {
         })
       }
 
-      // Clear user's cart
-      await tx.cart.deleteMany({
-        where: { userId: parseInt(session.user.id) }
-      })
+      // Remove the cart cleanup from transaction to handle it separately
 
       return newOrder
     })
+
+    // Clear cart after successful order creation
+    try {
+      // Using the dedicated cart clear endpoint
+      const cartClearResponse = await fetch('/api/cart/clear', {
+        method: 'POST',
+        headers: {
+          'Cookie': request.headers.get('cookie') || ''
+        }
+      })
+
+      if (!cartClearResponse.ok) {
+        console.error('Failed to clear cart:', await cartClearResponse.text())
+      }
+    } catch (error) {
+      console.error('Failed to clear cart:', error)
+      // Don't throw error here as order is already created successfully
+    }
 
     // Get complete order with details
     const completeOrder = await prisma.order.findUnique({

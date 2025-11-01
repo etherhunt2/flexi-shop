@@ -48,8 +48,7 @@ async function main() {
         name: 'Apple',
         slug: 'apple',
         isTop: 1,
-        status: 1,
-        productIds: [], // Initialize empty array for MongoDB
+        status: 1
       },
     }),
     prisma.brand.upsert({
@@ -304,7 +303,7 @@ async function main() {
 
   for (const productData of products) {
     const { categoryIds, ...productInfo } = productData
-    
+
     const product = await prisma.product.upsert({
       where: { slug: productInfo.slug },
       update: {},

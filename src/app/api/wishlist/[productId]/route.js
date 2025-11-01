@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { isValidUUID } from '@/lib/uuid-utils'
 
 export async function DELETE(request, { params }) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -16,11 +17,23 @@ export async function DELETE(request, { params }) {
 
     const { productId } = params
 
+    // Try to find the product first
+    const product = await prisma.product.findUnique({
+      where: { id: productId }
+    })
+
+    if (!product) {
+      return NextResponse.json(
+        { error: 'Product not found' },
+        { status: 404 }
+      )
+    }
+
     // Find and delete wishlist item
     const deletedItem = await prisma.wishlist.deleteMany({
       where: {
-        userId: parseInt(session.user.id),
-        productId: parseInt(productId)
+        userId: session.user.id,
+        productId
       }
     })
 

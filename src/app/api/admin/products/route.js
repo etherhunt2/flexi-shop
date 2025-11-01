@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { isValidUUID } from '@/lib/uuid-utils'
 
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user || session.user.userType !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -16,14 +17,14 @@ export async function GET(request) {
     const category = searchParams.get('category') || ''
     const brand = searchParams.get('brand') || ''
     const status = searchParams.get('status') || ''
-    const sortBy = searchParams.get('sortBy') || 'created_at'
+    const sortBy = searchParams.get('sortBy') || 'createdAt'
     const sortOrder = searchParams.get('sortOrder') || 'desc'
     const page = parseInt(searchParams.get('page')) || 1
     const limit = parseInt(searchParams.get('limit')) || 20
 
     // Build where clause
     const where = {}
-    
+
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -32,15 +33,23 @@ export async function GET(request) {
     }
 
     if (category) {
-      where.categories = {
-        some: {
-          id: parseInt(category)
+      if (isValidUUID(category)) {
+        where.categories = {
+          some: {
+            id: category
+          }
         }
+      } else {
+        console.warn('Ignoring invalid category id filter:', category)
       }
     }
 
     if (brand) {
-      where.brandId = parseInt(brand)
+      if (isValidUUID(brand)) {
+        where.brandId = brand
+      } else {
+        console.warn('Ignoring invalid brand id filter:', brand)
+      }
     }
 
     if (status !== '') {
@@ -100,61 +109,107 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user || session.user.userType !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const data = await request.json()
-    
+
     // Validate required fields
     if (!data.name || !data.price || !data.brandId || !data.categoryIds?.length) {
-      return NextResponse.json({ 
-        error: 'Missing required fields: name, price, brand, and categories' 
+      return NextResponse.json({
+        error: 'Missing required fields: name, price, brand, and categories'
       }, { status: 400 })
     }
 
-    // Create product with transaction
+    // Normalize and validate brandId (accept either string or object with id)
+    let brandIdValue = null
+    if (typeof data.brandId === 'object' && data.brandId !== null) {
+      // e.g. { id: '...' } or Prisma connect style
+      brandIdValue = data.brandId.id || data.brandId._id || null
+    } else {
+      brandIdValue = data.brandId
+    }
+
+    if (!isValidUUID(brandIdValue)) {
+      return NextResponse.json({ error: 'Invalid brandId format. Expected UUID string.' }, { status: 400 })
+    }
+
+    if (!Array.isArray(data.categoryIds)) {
+      return NextResponse.json({ error: 'Invalid categoryIds format' }, { status: 400 })
+    }
+
+    // Validate categoryIds: accept strings or objects with id and ensure valid UUID strings
+    const validatedCategoryIds = data.categoryIds.map((rawId) => {
+      let id = rawId
+      if (typeof rawId === 'object' && rawId !== null) {
+        id = rawId.id || rawId._id || null
+      }
+
+      if (!isValidUUID(id)) {
+        throw new Error(`Invalid category ID format: ${JSON.stringify(rawId)}`)
+      }
+      return id
+    })
+    // Create product with transaction: create product, connect categories, create initial stock
     const product = await prisma.$transaction(async (tx) => {
       // Create the product
       const newProduct = await tx.product.create({
         data: {
           name: data.name,
           slug: data.slug || data.name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-          price: data.price,
-          discountedPrice: data.discountedPrice,
-          short_description: data.summary,
-          description: data.description,
-          brandId: data.brandId,
-          is_featured: data.isFeatured ? 1 : 0,
-          is_slider: data.isSlider ? 1 : 0,
-          status: data.status || 1,
-          digital_item: data.digitalItem ? 1 : 0,
-          specification: data.specification || {},
-          meta_title: data.metaTitle,
-          meta_description: data.metaDescription,
-          meta_keywords: data.metaKeywords ? data.metaKeywords.split(',').map(k => k.trim()) : [],
-          main_image: data.mainImage || '/placeholder-product.svg'
+          model: data.model || null,
+          summary: data.summary || null,
+          description: data.description || null,
+          extraDescriptions: data.extraDescriptions || null,
+          specification: data.specification || null,
+          brandId: brandIdValue, // MongoDB ObjectId as string
+          sku: data.sku || null,
+          price: parseFloat(data.price),
+          discountType: parseInt(data.discountType || '1'),
+          discount: parseFloat(data.discount || '0'),
+          discountedPrice: parseFloat(data.discountedPrice || '0'),
+          quantity: parseInt(data.quantity || '0'),
+          sold: parseInt(data.sold || '0'),
+          minimumBuyQty: parseInt(data.minimumBuyQty || '1'),
+          stockStatus: parseInt(data.stockStatus || '1'),
+          track: parseInt(data.track || '1'),
+          featured: parseInt(data.featured || '0'),
+          todaysDeal: parseInt(data.todaysDeal || '0'),
+          status: parseInt(data.status || '1'),
+          isFeatured: parseInt(data.isFeatured ? '1' : '0'),
+          isSlider: parseInt(data.isSlider ? '1' : '0'),
+          mainImage: data.mainImage || '/placeholder-product.svg',
+          hoverImage: data.hoverImage || null,
+          metaTitle: data.metaTitle || null,
+          metaDescription: data.metaDescription || null,
+          metaKeywords: data.metaKeywords ? { keywords: data.metaKeywords.split(',').map(k => k.trim()) } : null,
+          digitalItem: data.digitalItem || null,
+          digitalFile: data.digitalFile || null,
+          categoryIds: validatedCategoryIds
         }
       })
 
-      // Connect categories
-      await tx.product.update({
-        where: { id: newProduct.id },
-        data: {
-          categories: {
-            connect: data.categoryIds.map(id => ({ id: parseInt(id) }))
+      // Connect categories using validatedCategoryIds (strings)
+      if (validatedCategoryIds.length) {
+        await tx.product.update({
+          where: { id: newProduct.id },
+          data: {
+            categories: {
+              connect: validatedCategoryIds.map(id => ({ id }))
+            }
           }
-        }
-      })
+        })
+      }
 
       // Create initial stock if quantity provided
-      if (data.quantity > 0) {
+      if (parseInt(data.quantity || '0') > 0) {
         await tx.productStock.create({
           data: {
             productId: newProduct.id,
-            quantity: data.quantity,
-            price: data.price
+            quantity: parseInt(data.quantity),
+            price: parseFloat(data.price)
           }
         })
       }
@@ -162,9 +217,9 @@ export async function POST(request) {
       return newProduct
     })
 
-    return NextResponse.json({ 
-      message: 'Product created successfully', 
-      product 
+    return NextResponse.json({
+      message: 'Product created successfully',
+      product
     }, { status: 201 })
 
   } catch (error) {

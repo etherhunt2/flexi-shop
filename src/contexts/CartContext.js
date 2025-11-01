@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useReducer, useEffect } from 'react'
+import { createContext, useContext, useReducer, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import toast from 'react-hot-toast'
 
@@ -25,7 +25,7 @@ const cartReducer = (state, action) => {
       const existingItemIndex = state.items.findIndex(
         item => item.productId === action.payload.productId
       )
-      
+
       if (existingItemIndex >= 0) {
         const updatedItems = [...state.items]
         updatedItems[existingItemIndex] = action.payload
@@ -88,16 +88,16 @@ export function CartProvider({ children }) {
   }
 
   // Fetch cart data
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true })
-      
+
       const sessionId = getSessionId()
       const url = session?.user ? '/api/cart' : `/api/cart?sessionId=${sessionId}`
-      
+
       const response = await fetch(url)
       const data = await response.json()
-      
+
       if (response.ok) {
         dispatch({ type: 'SET_CART', payload: data })
       }
@@ -105,13 +105,13 @@ export function CartProvider({ children }) {
       console.error('Failed to fetch cart:', error)
       dispatch({ type: 'SET_LOADING', payload: false })
     }
-  }
+  }, [session])
 
   // Add item to cart
   const addToCart = async (productId, quantity = 1, attributes = null) => {
     try {
       const sessionId = getSessionId()
-      
+
       const response = await fetch('/api/cart', {
         method: 'POST',
         headers: {
@@ -145,7 +145,7 @@ export function CartProvider({ children }) {
   const updateCartItem = async (itemId, quantity) => {
     try {
       const sessionId = getSessionId()
-      
+
       const response = await fetch(`/api/cart/${itemId}`, {
         method: 'PUT',
         headers: {
@@ -173,7 +173,7 @@ export function CartProvider({ children }) {
   const removeFromCart = async (itemId) => {
     try {
       const sessionId = getSessionId()
-      
+
       const response = await fetch(`/api/cart/${itemId}`, {
         method: 'DELETE',
         headers: {
@@ -203,7 +203,7 @@ export function CartProvider({ children }) {
   // Fetch cart on mount and when session changes
   useEffect(() => {
     fetchCart()
-  }, [session])
+  }, [fetchCart])
 
   const value = {
     ...state,

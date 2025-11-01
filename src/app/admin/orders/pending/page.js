@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
@@ -15,78 +15,86 @@ export default function PendingOrdersPage() {
   const [loading, setLoading] = useState(true)
   const [selectedOrders, setSelectedOrders] = useState([])
 
-  // Mock pending orders data
-  const mockPendingOrders = [
-    {
-      id: 'ORD-2024-001',
-      customerId: 101,
-      customerName: 'John Doe',
-      customerEmail: 'john.doe@example.com',
-      orderDate: '2024-01-15T09:30:00Z',
-      totalAmount: 1299.99,
-      currency: 'USD',
-      paymentStatus: 'paid',
-      paymentMethod: 'Credit Card',
-      shippingAddress: '123 Main St, New York, NY 10001',
-      items: [
-        { id: 1, name: 'iPhone 15 Pro Max', quantity: 1, price: 1299.99, image: '/placeholder-product.svg' }
-      ],
-      notes: 'Customer requested express shipping',
-      priority: 'high'
-    },
-    {
-      id: 'ORD-2024-002',
-      customerId: 102,
-      customerName: 'Jane Smith',
-      customerEmail: 'jane.smith@example.com',
-      orderDate: '2024-01-15T10:15:00Z',
-      totalAmount: 1899.98,
-      currency: 'USD',
-      paymentStatus: 'paid',
-      paymentMethod: 'PayPal',
-      shippingAddress: '456 Oak Ave, Los Angeles, CA 90210',
-      items: [
-        { id: 2, name: 'Samsung Galaxy S24 Ultra', quantity: 1, price: 1199.99, image: '/placeholder-product.svg' },
-        { id: 4, name: 'Sony WH-1000XM5', quantity: 1, price: 399.99, image: '/placeholder-product.svg' }
-      ],
-      notes: '',
-      priority: 'medium'
-    },
-    {
-      id: 'ORD-2024-003',
-      customerId: 103,
-      customerName: 'Mike Johnson',
-      customerEmail: 'mike.johnson@example.com',
-      orderDate: '2024-01-15T11:00:00Z',
-      totalAmount: 2599.99,
-      currency: 'USD',
-      paymentStatus: 'pending',
-      paymentMethod: 'Bank Transfer',
-      shippingAddress: '789 Pine St, Chicago, IL 60601',
-      items: [
-        { id: 3, name: 'MacBook Pro 16"', quantity: 1, price: 2599.99, image: '/placeholder-product.svg' }
-      ],
-      notes: 'Waiting for payment confirmation',
-      priority: 'low'
-    },
-    {
-      id: 'ORD-2024-004',
-      customerId: 104,
-      customerName: 'Sarah Wilson',
-      customerEmail: 'sarah.wilson@example.com',
-      orderDate: '2024-01-15T12:30:00Z',
-      totalAmount: 1499.99,
-      currency: 'USD',
-      paymentStatus: 'paid',
-      paymentMethod: 'Credit Card',
-      shippingAddress: '321 Elm St, Miami, FL 33101',
-      items: [
-        { id: 5, name: 'Dell XPS 13', quantity: 1, price: 1499.99, image: '/placeholder-product.svg' }
-      ],
-      notes: 'Gift wrapping requested',
-      priority: 'high'
-    }
-  ]
+  const loadOrders = useCallback(() => {
+    // Mock pending orders data
+    const mockPendingOrders = [
+      {
+        id: 'ORD-2024-001',
+        customerId: 101,
+        customerName: 'John Doe',
+        customerEmail: 'john.doe@example.com',
+        orderDate: '2024-01-15T09:30:00Z',
+        totalAmount: 1299.99,
+        currency: 'USD',
+        paymentStatus: 'paid',
+        paymentMethod: 'Credit Card',
+        shippingAddress: '123 Main St, New York, NY 10001',
+        items: [
+          { id: 1, name: 'iPhone 15 Pro Max', quantity: 1, price: 1299.99, image: '/placeholder-product.svg' }
+        ],
+        notes: 'Customer requested express shipping',
+        priority: 'high'
+      },
+      {
+        id: 'ORD-2024-002',
+        customerId: 102,
+        customerName: 'Jane Smith',
+        customerEmail: 'jane.smith@example.com',
+        orderDate: '2024-01-15T10:15:00Z',
+        totalAmount: 1899.98,
+        currency: 'USD',
+        paymentStatus: 'paid',
+        paymentMethod: 'PayPal',
+        shippingAddress: '456 Oak Ave, Los Angeles, CA 90210',
+        items: [
+          { id: 2, name: 'Samsung Galaxy S24 Ultra', quantity: 1, price: 1199.99, image: '/placeholder-product.svg' },
+          { id: 4, name: 'Sony WH-1000XM5', quantity: 1, price: 399.99, image: '/placeholder-product.svg' }
+        ],
+        notes: '',
+        priority: 'medium'
+      },
+      {
+        id: 'ORD-2024-003',
+        customerId: 103,
+        customerName: 'Mike Johnson',
+        customerEmail: 'mike.johnson@example.com',
+        orderDate: '2024-01-15T11:00:00Z',
+        totalAmount: 2599.99,
+        currency: 'USD',
+        paymentStatus: 'pending',
+        paymentMethod: 'Bank Transfer',
+        shippingAddress: '789 Pine St, Chicago, IL 60601',
+        items: [
+          { id: 3, name: 'MacBook Pro 16"', quantity: 1, price: 2599.99, image: '/placeholder-product.svg' }
+        ],
+        notes: 'Waiting for payment confirmation',
+        priority: 'low'
+      },
+      {
+        id: 'ORD-2024-004',
+        customerId: 104,
+        customerName: 'Sarah Wilson',
+        customerEmail: 'sarah.wilson@example.com',
+        orderDate: '2024-01-15T12:30:00Z',
+        totalAmount: 1499.99,
+        currency: 'USD',
+        paymentStatus: 'paid',
+        paymentMethod: 'Credit Card',
+        shippingAddress: '321 Elm St, Miami, FL 33101',
+        items: [
+          { id: 5, name: 'Dell XPS 13', quantity: 1, price: 1499.99, image: '/placeholder-product.svg' }
+        ],
+        notes: 'Gift wrapping requested',
+        priority: 'high'
+      }
+    ]
+
+    setLoading(true)
+    setTimeout(() => {
+      setOrders(mockPendingOrders)
+      setLoading(false)
+    }, 1000)
+  }, [])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -95,15 +103,7 @@ export default function PendingOrdersPage() {
       return
     }
     loadOrders()
-  }, [session, status, router])
-
-  const loadOrders = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setOrders(mockPendingOrders)
-      setLoading(false)
-    }, 1000)
-  }
+  }, [session, status, router, loadOrders])
 
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -174,8 +174,8 @@ export default function PendingOrdersPage() {
   }
 
   const toggleOrderSelection = (orderId) => {
-    setSelectedOrders(prev => 
-      prev.includes(orderId) 
+    setSelectedOrders(prev =>
+      prev.includes(orderId)
         ? prev.filter(id => id !== orderId)
         : [...prev, orderId]
     )
@@ -236,7 +236,7 @@ export default function PendingOrdersPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">💰</span>
@@ -246,7 +246,7 @@ export default function PendingOrdersPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">🚨</span>
@@ -256,7 +256,7 @@ export default function PendingOrdersPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">⏳</span>

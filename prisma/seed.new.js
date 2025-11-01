@@ -1,0 +1,54 @@
+const { PrismaClient } = require('@prisma/client')
+const bcrypt = require('bcryptjs')
+
+const prisma = new PrismaClient()
+
+async function main() {
+    console.log('🌱 Seeding database...')
+
+    // Create admin user
+    const adminPassword = await bcrypt.hash('admin123', 12)
+    const admin = await prisma.admin.upsert({
+        where: { email: 'admin@pixshop.com' },
+        update: {},
+        create: {
+            name: 'Admin User',
+            email: 'admin@pixshop.com',
+            username: 'admin',
+            password: adminPassword,
+        },
+    })
+
+    // Create test user
+    const userPassword = await bcrypt.hash('user123', 12)
+    const user = await prisma.user.upsert({
+        where: { email: 'user@pixshop.com' },
+        update: {},
+        create: {
+            firstname: 'John',
+            lastname: 'Doe',
+            email: 'user@pixshop.com',
+            username: 'johndoe',
+            password: userPassword,
+            mobile: '+1234567890',
+            countryCode: 'US',
+            status: 1,
+            ev: 1,
+            sv: 1,
+            kv: 1,
+        },
+    })
+
+    console.log('✅ Database seeded successfully!')
+    console.log('👤 Admin: admin@pixshop.com / admin123')
+    console.log('👤 User: user@pixshop.com / user123')
+}
+
+main()
+    .catch((e) => {
+        console.error('❌ Error seeding database:', e)
+        process.exit(1)
+    })
+    .finally(async () => {
+        await prisma.$disconnect()
+    })

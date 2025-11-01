@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
@@ -22,22 +22,12 @@ function AdminProductsContent() {
     category: searchParams.get('category') || '',
     brand: searchParams.get('brand') || '',
     status: searchParams.get('status') || '',
-    sortBy: searchParams.get('sortBy') || 'created_at',
+    sortBy: searchParams.get('sortBy') || 'createdAt',
     sortOrder: searchParams.get('sortOrder') || 'desc'
   })
   const [pagination, setPagination] = useState({})
 
-  useEffect(() => {
-    if (status === 'loading') return
-    if (!session?.user || session.user.userType !== 'admin') {
-      router.push('/admin/login')
-      return
-    }
-    fetchProducts()
-    fetchFiltersData()
-  }, [session, status, router, filters])
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true)
       const queryParams = new URLSearchParams()
@@ -47,7 +37,7 @@ function AdminProductsContent() {
 
       const response = await fetch(`/api/admin/products?${queryParams}`)
       const data = await response.json()
-      
+
       if (response.ok) {
         setProducts(data.products || [])
         setPagination(data.pagination || {})
@@ -58,9 +48,9 @@ function AdminProductsContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
 
-  const fetchFiltersData = async () => {
+  const fetchFiltersData = useCallback(async () => {
     try {
       const [categoriesRes, brandsRes] = await Promise.all([
         fetch('/api/categories'),
@@ -77,7 +67,7 @@ function AdminProductsContent() {
     } catch (error) {
       console.error('Failed to fetch filter data:', error)
     }
-  }
+  }, [])
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }))
@@ -128,6 +118,16 @@ function AdminProductsContent() {
       toast.error('Failed to update status')
     }
   }
+
+  useEffect(() => {
+    if (status === 'loading') return
+    if (!session?.user || session.user.userType !== 'admin') {
+      router.push('/admin/login')
+      return
+    }
+    fetchProducts()
+    fetchFiltersData()
+  }, [session, status, router, fetchProducts, fetchFiltersData])
 
   if (status === 'loading' || loading) {
     return (
@@ -184,7 +184,7 @@ function AdminProductsContent() {
               >
                 <option value="">All Categories</option>
                 {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
+                  <option key={category.id} value={category.id.toString()}>
                     {category.name}
                   </option>
                 ))}
@@ -200,7 +200,7 @@ function AdminProductsContent() {
               >
                 <option value="">All Brands</option>
                 {brands.map((brand) => (
-                  <option key={brand.id} value={brand.id}>
+                  <option key={brand.id} value={brand.id.toString()}>
                     {brand.name}
                   </option>
                 ))}
@@ -230,8 +230,8 @@ function AdminProductsContent() {
                 }}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="created_at-desc">Newest First</option>
-                <option value="created_at-asc">Oldest First</option>
+                <option value="createdAt-desc">Newest First</option>
+                <option value="createdAt-asc">Oldest First</option>
                 <option value="name-asc">Name A-Z</option>
                 <option value="name-desc">Name Z-A</option>
                 <option value="price-asc">Price Low-High</option>
@@ -328,11 +328,10 @@ function AdminProductsContent() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
                         onClick={() => handleStatusToggle(product.id, product.status)}
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          product.status === 1 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.status === 1
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                          }`}
                       >
                         {product.status === 1 ? 'Active' : 'Inactive'}
                       </button>
@@ -340,14 +339,14 @@ function AdminProductsContent() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <Link
-                          href={`/products/${product.id}`}
+                          href={`/products/${product.slug}`}
                           className="text-blue-600 hover:text-blue-900"
                           title="View"
                         >
                           <span>👁️</span>
                         </Link>
                         <Link
-                          href={`/admin/products/${product.id}/edit`}
+                          href={`/admin/products/edit/${product.id}`}
                           className="text-green-600 hover:text-green-900"
                           title="Edit"
                         >
@@ -394,24 +393,23 @@ function AdminProductsContent() {
               >
                 Previous
               </button>
-              
+
               {[...Array(pagination.pages)].map((_, i) => {
                 const page = i + 1
                 return (
                   <button
                     key={page}
                     onClick={() => handleFilterChange('page', page)}
-                    className={`px-3 py-2 border rounded-lg ${
-                      page === pagination.page
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'border-gray-300 hover:bg-gray-50'
-                    }`}
+                    className={`px-3 py-2 border rounded-lg ${page === pagination.page
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'border-gray-300 hover:bg-gray-50'
+                      }`}
                   >
                     {page}
                   </button>
                 )
               })}
-              
+
               <button
                 onClick={() => handleFilterChange('page', pagination.page + 1)}
                 disabled={pagination.page >= pagination.pages}

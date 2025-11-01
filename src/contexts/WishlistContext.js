@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useReducer, useEffect } from 'react'
+import { createContext, useContext, useReducer, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import toast from 'react-hot-toast'
 
@@ -54,7 +54,7 @@ export function WishlistProvider({ children }) {
   const { data: session } = useSession()
 
   // Fetch wishlist data
-  const fetchWishlist = async () => {
+  const fetchWishlist = useCallback(async () => {
     if (!session?.user) {
       dispatch({ type: 'SET_LOADING', payload: false })
       return
@@ -62,10 +62,10 @@ export function WishlistProvider({ children }) {
 
     try {
       dispatch({ type: 'SET_LOADING', payload: true })
-      
+
       const response = await fetch('/api/wishlist')
       const data = await response.json()
-      
+
       if (response.ok) {
         dispatch({ type: 'SET_WISHLIST', payload: data })
       } else {
@@ -75,7 +75,7 @@ export function WishlistProvider({ children }) {
       console.error('Failed to fetch wishlist:', error)
       dispatch({ type: 'SET_LOADING', payload: false })
     }
-  }
+  }, [session])
 
   // Add item to wishlist
   const addToWishlist = async (productId) => {
@@ -144,7 +144,7 @@ export function WishlistProvider({ children }) {
   // Fetch wishlist on mount and when session changes
   useEffect(() => {
     fetchWishlist()
-  }, [session])
+  }, [fetchWishlist])
 
   const value = {
     ...state,

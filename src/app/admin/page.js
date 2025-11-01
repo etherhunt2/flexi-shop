@@ -46,7 +46,7 @@ export default function AdminDashboard() {
       ])
 
       const productsData = await productsRes.json()
-      
+
       setStats({
         totalProducts: productsData.pagination?.total || 8,
         totalOrders: 45, // Mock data
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Welcome back, {session.user.name}! Here's what's happening with your store.</p>
+          <p className="text-gray-600">Welcome back, {session.user.name}! Here is what is happening with your store.</p>
         </div>
 
         {/* Stats Cards */}
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="text-sm text-gray-600">Product "iPhone 15 Pro" updated</span>
+                <span className="text-sm text-gray-600">Product &quot;iPhone 15 Pro&quot; updated</span>
                 <span className="text-xs text-gray-400">15 min ago</span>
               </div>
               <div className="flex items-center space-x-3">
@@ -187,7 +187,7 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                <span className="text-sm text-gray-600">Low stock alert for "Nike Air Max"</span>
+                <span className="text-sm text-gray-600">Low stock alert for &quot;Nike Air Max&quot;</span>
                 <span className="text-xs text-gray-400">2 hours ago</span>
               </div>
             </div>
@@ -240,7 +240,7 @@ export default function AdminDashboard() {
               </h3>
               <div className="mt-2 text-sm text-blue-700">
                 <p>
-                  This is a basic admin dashboard. In a production environment, you would have 
+                  This is a basic admin dashboard. In a production environment, you would have
                   dedicated admin API endpoints, advanced analytics, user management, and more features.
                 </p>
               </div>

@@ -1,21 +1,21 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { isValidObjectId } from '@/lib/mongodb-utils'
+import { isValidUUID } from '@/lib/uuid-utils'
 
 export async function GET(request, { params }) {
   try {
     const { id } = params
-    
+
     if (!isValidObjectId(id)) {
       return NextResponse.json(
         { error: 'Invalid product ID' },
         { status: 400 }
       )
     }
-    
+
     const product = await prisma.product.findUnique({
-      where: { 
-        id: id 
+      where: {
+        id: id
       },
       include: {
         brand: true,
@@ -53,7 +53,7 @@ export async function GET(request, { params }) {
     }
 
     // Calculate average rating
-    const averageRating = product.reviews.length > 0 
+    const averageRating = product.reviews.length > 0
       ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
       : 0
 
@@ -99,7 +99,7 @@ export async function GET(request, { params }) {
       reviewCount: product.reviews.length,
       relatedProducts: relatedProducts.map(p => ({
         ...p,
-        averageRating: p.reviews.length > 0 
+        averageRating: p.reviews.length > 0
           ? p.reviews.reduce((sum, review) => sum + review.rating, 0) / p.reviews.length
           : 0,
         reviewCount: p.reviews.length
@@ -118,17 +118,17 @@ export async function PUT(request, { params }) {
   try {
     const { id } = params
     const data = await request.json()
-    
+
     if (!isValidObjectId(id)) {
       return NextResponse.json(
         { error: 'Invalid product ID' },
         { status: 400 }
       )
     }
-    
+
     // This would typically require admin authentication
     // Add authentication middleware here
-    
+
     const product = await prisma.product.update({
       where: { id: id },
       data,
@@ -151,17 +151,17 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const { id } = params
-    
+
     if (!isValidObjectId(id)) {
       return NextResponse.json(
         { error: 'Invalid product ID' },
         { status: 400 }
       )
     }
-    
+
     // This would typically require admin authentication
     // Add authentication middleware here
-    
+
     await prisma.product.delete({
       where: { id: id }
     })

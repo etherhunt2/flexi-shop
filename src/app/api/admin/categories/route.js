@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { isValidObjectId } from '@/lib/mongodb-utils'
 
 // Function to generate slug from name
 function generateSlug(name) {
@@ -16,7 +17,7 @@ function generateSlug(name) {
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user || session.user.userType !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -71,18 +72,25 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user || session.user.userType !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const data = await request.json()
-    
+
     // Validate required fields
     if (!data.name) {
-      return NextResponse.json({ 
-        error: 'Category name is required' 
+      return NextResponse.json({
+        error: 'Category name is required'
       }, { status: 400 })
+    }
+
+    // If parentId provided, validate ObjectId format
+    if (data.parentId) {
+      if (!isValidObjectId(data.parentId)) {
+        return NextResponse.json({ error: 'Invalid parentId format' }, { status: 400 })
+      }
     }
 
     // Check if category name already exists
@@ -94,8 +102,8 @@ export async function POST(request) {
     })
 
     if (existingCategory) {
-      return NextResponse.json({ 
-        error: 'Category with this name already exists' 
+      return NextResponse.json({
+        error: 'Category with this name already exists'
       }, { status: 400 })
     }
 
@@ -126,9 +134,9 @@ export async function POST(request) {
       }
     })
 
-    return NextResponse.json({ 
-      message: 'Category created successfully', 
-      category 
+    return NextResponse.json({
+      message: 'Category created successfully',
+      category
     }, { status: 201 })
 
   } catch (error) {

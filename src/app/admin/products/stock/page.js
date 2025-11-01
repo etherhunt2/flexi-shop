@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
@@ -17,79 +17,88 @@ export default function StockManagementPage() {
   const [editingStock, setEditingStock] = useState(null)
   const [newQuantity, setNewQuantity] = useState('')
 
-  // Mock data for stock management
-  const mockStockData = [
-    {
-      id: 1,
-      name: 'iPhone 15 Pro Max',
-      sku: 'IPH15PM-256GB-BL',
-      currentStock: 45,
-      minStock: 10,
-      maxStock: 100,
-      price: 1299.99,
-      status: 'in_stock',
-      lastUpdated: '2024-01-15T10:30:00Z',
-      category: 'Electronics',
-      supplier: 'Apple Inc.',
-      image: '/placeholder-product.svg'
-    },
-    {
-      id: 2,
-      name: 'Samsung Galaxy S24 Ultra',
-      sku: 'SGS24U-512GB-TI',
-      currentStock: 3,
-      minStock: 5,
-      maxStock: 80,
-      price: 1199.99,
-      status: 'low_stock',
-      lastUpdated: '2024-01-14T15:45:00Z',
-      category: 'Electronics',
-      supplier: 'Samsung',
-      image: '/placeholder-product.svg'
-    },
-    {
-      id: 3,
-      name: 'MacBook Pro 16"',
-      sku: 'MBP16-M3-1TB',
-      currentStock: 0,
-      minStock: 3,
-      maxStock: 25,
-      price: 2599.99,
-      status: 'out_of_stock',
-      lastUpdated: '2024-01-13T09:20:00Z',
-      category: 'Electronics',
-      supplier: 'Apple Inc.',
-      image: '/placeholder-product.svg'
-    },
-    {
-      id: 4,
-      name: 'Sony WH-1000XM5',
-      sku: 'SONY-WH1000XM5-BK',
-      currentStock: 25,
-      minStock: 8,
-      maxStock: 50,
-      price: 399.99,
-      status: 'in_stock',
-      lastUpdated: '2024-01-15T14:10:00Z',
-      category: 'Audio',
-      supplier: 'Sony',
-      image: '/placeholder-product.svg'
-    },
-    {
-      id: 5,
-      name: 'Dell XPS 13',
-      sku: 'DELL-XPS13-I7-512',
-      currentStock: 12,
-      minStock: 5,
-      maxStock: 30,
-      price: 1499.99,
-      status: 'in_stock',
-      lastUpdated: '2024-01-14T11:30:00Z',
-      category: 'Electronics',
-      supplier: 'Dell',
-      image: '/placeholder-product.svg'
-    }
-  ]
+  const loadStockData = useCallback(() => {
+    // Mock data for stock management
+    const mockStockData = [
+      {
+        id: 1,
+        name: 'iPhone 15 Pro Max',
+        sku: 'IPH15PM-256GB-BL',
+        currentStock: 45,
+        minStock: 10,
+        maxStock: 100,
+        price: 1299.99,
+        status: 'in_stock',
+        lastUpdated: '2024-01-15T10:30:00Z',
+        category: 'Electronics',
+        supplier: 'Apple Inc.',
+        image: '/placeholder-product.svg'
+      },
+      {
+        id: 2,
+        name: 'Samsung Galaxy S24 Ultra',
+        sku: 'SGS24U-512GB-TI',
+        currentStock: 3,
+        minStock: 5,
+        maxStock: 80,
+        price: 1199.99,
+        status: 'low_stock',
+        lastUpdated: '2024-01-14T15:45:00Z',
+        category: 'Electronics',
+        supplier: 'Samsung',
+        image: '/placeholder-product.svg'
+      },
+      {
+        id: 3,
+        name: 'MacBook Pro 16"',
+        sku: 'MBP16-M3-1TB',
+        currentStock: 0,
+        minStock: 3,
+        maxStock: 25,
+        price: 2599.99,
+        status: 'out_of_stock',
+        lastUpdated: '2024-01-13T09:20:00Z',
+        category: 'Electronics',
+        supplier: 'Apple Inc.',
+        image: '/placeholder-product.svg'
+      },
+      {
+        id: 4,
+        name: 'Sony WH-1000XM5',
+        sku: 'SONY-WH1000XM5-BK',
+        currentStock: 25,
+        minStock: 8,
+        maxStock: 50,
+        price: 399.99,
+        status: 'in_stock',
+        lastUpdated: '2024-01-15T14:10:00Z',
+        category: 'Audio',
+        supplier: 'Sony',
+        image: '/placeholder-product.svg'
+      },
+      {
+        id: 5,
+        name: 'Dell XPS 13',
+        sku: 'DELL-XPS13-I7-512',
+        currentStock: 12,
+        minStock: 5,
+        maxStock: 30,
+        price: 1499.99,
+        status: 'in_stock',
+        lastUpdated: '2024-01-14T11:30:00Z',
+        category: 'Electronics',
+        supplier: 'Dell',
+        image: '/placeholder-product.svg'
+      }
+    ]
+
+    setLoading(true)
+    // Simulate API call
+    setTimeout(() => {
+      setProducts(mockStockData)
+      setLoading(false)
+    }, 1000)
+  }, [])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -98,16 +107,7 @@ export default function StockManagementPage() {
       return
     }
     loadStockData()
-  }, [session, status, router])
-
-  const loadStockData = () => {
-    setLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      setProducts(mockStockData)
-      setLoading(false)
-    }, 1000)
-  }
+  }, [session, status, router, loadStockData])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -150,7 +150,7 @@ export default function StockManagementPage() {
       if (product.id === productId) {
         const updatedStock = parseInt(newQuantity)
         let newStatus = 'in_stock'
-        
+
         if (updatedStock === 0) {
           newStatus = 'out_of_stock'
         } else if (updatedStock <= product.minStock) {
@@ -247,7 +247,7 @@ export default function StockManagementPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">📈</span>
@@ -257,7 +257,7 @@ export default function StockManagementPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">⚠️</span>
@@ -267,7 +267,7 @@ export default function StockManagementPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">📉</span>
@@ -277,7 +277,7 @@ export default function StockManagementPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">💰</span>

@@ -120,7 +120,7 @@ export default function CreateProductPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!formData.name || !formData.price || !formData.brandId || formData.categoryIds.length === 0) {
       toast.error('Please fill in all required fields')
       return
@@ -139,8 +139,8 @@ export default function CreateProductPage() {
           price: parseFloat(formData.price),
           discountedPrice: formData.discountedPrice ? parseFloat(formData.discountedPrice) : null,
           quantity: parseInt(formData.quantity) || 0,
-          brandId: parseInt(formData.brandId),
-          categoryIds: formData.categoryIds.map(id => parseInt(id))
+          brandId: formData.brandId,  // Send as UUID string
+          categoryIds: formData.categoryIds  // Send as array of UUID strings
         }),
       })
 
@@ -191,10 +191,84 @@ export default function CreateProductPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
+              {/* Featured Image Upload */}
+              <div className="bg-white rounded-lg shadow-sm border p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Featured Image</h2>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center w-full">
+                    <label htmlFor="mainImage" className="relative flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                      {formData.mainImage ? (
+                        <>
+                          <img
+                            src={formData.mainImage}
+                            alt="Featured"
+                            className="absolute inset-0 w-full h-full object-contain"
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                            <span className="text-white">Change Image</span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                          <p className="text-xs text-gray-500">PNG, JPG or WEBP (MAX. 800x400px)</p>
+                        </div>
+                      )}
+                      <input
+                        id="mainImage"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files[0]
+                          if (file) {
+                            const formData = new FormData()
+                            formData.append('file', file)
+
+                            try {
+                              const response = await fetch('/api/admin/upload', {
+                                method: 'POST',
+                                body: formData
+                              })
+
+                              if (response.ok) {
+                                const data = await response.json()
+                                setFormData(prev => ({
+                                  ...prev,
+                                  mainImage: data.url
+                                }))
+                                toast.success('Image uploaded successfully')
+                              } else {
+                                throw new Error('Failed to upload image')
+                              }
+                            } catch (error) {
+                              console.error('Upload error:', error)
+                              toast.error('Failed to upload image')
+                            }
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  {formData.mainImage && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, mainImage: '' }))}
+                      className="text-red-600 hover:text-red-800 text-sm font-medium"
+                    >
+                      Remove Image
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* Basic Information */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -283,7 +357,7 @@ export default function CreateProductPage() {
                     >
                       <option value="">Select Brand</option>
                       {brands.map((brand) => (
-                        <option key={brand.id} value={brand.id}>
+                        <option key={brand.id} value={brand.id.toString()}>
                           {brand.name}
                         </option>
                       ))}
@@ -328,8 +402,8 @@ export default function CreateProductPage() {
                     <label key={category.id} className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={formData.categoryIds.includes(category.id.toString())}
-                        onChange={() => handleCategoryChange(category.id.toString())}
+                        checked={formData.categoryIds.includes(category.id)}
+                        onChange={() => handleCategoryChange(category.id)}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                       <span className="text-sm text-gray-700">{category.name}</span>
@@ -351,7 +425,7 @@ export default function CreateProductPage() {
                     <span>Add</span>
                   </button>
                 </div>
-                
+
                 <div className="space-y-3">
                   {Object.entries(formData.specification).map(([key, value]) => (
                     <div key={key} className="flex items-center space-x-3">
@@ -394,7 +468,7 @@ export default function CreateProductPage() {
               {/* Product Options */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Product Options</h2>
-                
+
                 <div className="space-y-4">
                   <label className="flex items-center space-x-2">
                     <input
@@ -449,7 +523,7 @@ export default function CreateProductPage() {
               {/* SEO */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">SEO Settings</h2>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -505,7 +579,7 @@ export default function CreateProductPage() {
                   >
                     {loading ? 'Creating...' : 'Create Product'}
                   </button>
-                  
+
                   <Link
                     href="/admin/products"
                     className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors text-center block"

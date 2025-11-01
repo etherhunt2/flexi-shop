@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import Layout from '@/components/Layout'
-import { 
-  MapPinIcon, 
-  PhoneIcon, 
-  EnvelopeIcon, 
+import {
+  MapPinIcon,
+  PhoneIcon,
+  EnvelopeIcon,
   ClockIcon,
   ChatBubbleLeftRightIcon,
   QuestionMarkCircleIcon
@@ -48,7 +48,7 @@ export default function ContactPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Have a question or need help? We're here to assist you. Get in touch with our friendly support team.
+            Have a question or need help? We are here to assist you. Get in touch with our friendly support team.
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export default function ContactPage() {
           <div className="lg:col-span-1 space-y-8">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Get in Touch</h2>
-              
+
               <div className="space-y-6">
                 <div className="flex items-start space-x-4">
                   <div className="flex-shrink-0">
@@ -91,7 +91,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-gray-900">Email</h3>
                     <p className="text-gray-600">support@pixshop.com</p>
-                    <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
+                    <p className="text-sm text-gray-500">We will respond within 24 hours</p>
                   </div>
                 </div>
 
@@ -137,7 +137,7 @@ export default function ContactPage() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-sm border p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -254,55 +254,55 @@ export default function ContactPage() {
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
             Frequently Asked Questions
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div className="space-y-6">
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">How can I track my order?</h3>
                 <p className="text-gray-600 text-sm">
-                  You can track your order by logging into your account and visiting the "My Orders" section. 
-                  You'll also receive tracking information via email once your order ships.
+                  You can track your order by logging into your account and visiting the "My Orders" section.
+                  You will also receive tracking information via email once your order ships.
                 </p>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">What is your return policy?</h3>
                 <p className="text-gray-600 text-sm">
-                  We offer a 30-day return policy for most items. Products must be in original condition 
+                  We offer a 30-day return policy for most items. Products must be in original condition
                   with tags attached. Some restrictions apply for certain categories.
                 </p>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Do you offer international shipping?</h3>
                 <p className="text-gray-600 text-sm">
-                  Yes, we ship to most countries worldwide. Shipping costs and delivery times vary by location. 
+                  Yes, we ship to most countries worldwide. Shipping costs and delivery times vary by location.
                   Check our shipping page for detailed information.
                 </p>
               </div>
             </div>
-            
+
             <div className="space-y-6">
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">How do I change or cancel my order?</h3>
                 <p className="text-gray-600 text-sm">
-                  Orders can be modified or cancelled within 1 hour of placement. After that, 
+                  Orders can be modified or cancelled within 1 hour of placement. After that,
                   please contact our support team for assistance.
                 </p>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">What payment methods do you accept?</h3>
                 <p className="text-gray-600 text-sm">
-                  We accept all major credit cards, PayPal, Apple Pay, Google Pay, and other secure payment methods. 
+                  We accept all major credit cards, PayPal, Apple Pay, Google Pay, and other secure payment methods.
                   All transactions are encrypted and secure.
                 </p>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">How can I become a seller?</h3>
                 <p className="text-gray-600 text-sm">
-                  We're always looking for quality sellers. Contact our partnership team to learn about 
+                  We're always looking for quality sellers. Contact our partnership team to learn about
                   our seller program and requirements.
                 </p>
               </div>

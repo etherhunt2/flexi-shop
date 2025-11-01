@@ -14,61 +14,61 @@ export default function CouponsPage() {
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
-  const mockCouponsData = [
-    {
-      id: 1,
-      code: 'WELCOME20',
-      type: 'percentage',
-      value: 20,
-      description: 'Welcome discount for new customers',
-      minOrderAmount: 50,
-      maxDiscount: 100,
-      usageLimit: 1000,
-      usedCount: 245,
-      startDate: '2024-01-01T00:00:00Z',
-      endDate: '2024-12-31T23:59:59Z',
-      isActive: true,
-      isPublic: true,
-      categories: ['Electronics', 'Fashion'],
-      createdAt: '2024-01-01T00:00:00Z'
-    },
-    {
-      id: 2,
-      code: 'SAVE50',
-      type: 'fixed',
-      value: 50,
-      description: 'Fixed $50 discount on orders over $200',
-      minOrderAmount: 200,
-      maxDiscount: 50,
-      usageLimit: 500,
-      usedCount: 89,
-      startDate: '2024-01-15T00:00:00Z',
-      endDate: '2024-02-15T23:59:59Z',
-      isActive: true,
-      isPublic: false,
-      categories: ['Electronics'],
-      createdAt: '2024-01-10T00:00:00Z'
-    },
-    {
-      id: 3,
-      code: 'FLASH25',
-      type: 'percentage',
-      value: 25,
-      description: 'Flash sale - 25% off everything',
-      minOrderAmount: 0,
-      maxDiscount: 200,
-      usageLimit: 100,
-      usedCount: 100,
-      startDate: '2024-01-10T00:00:00Z',
-      endDate: '2024-01-12T23:59:59Z',
-      isActive: false,
-      isPublic: true,
-      categories: [],
-      createdAt: '2024-01-08T00:00:00Z'
-    }
-  ]
-
   const loadCoupons = useCallback(() => {
+    const mockCouponsData = [
+      {
+        id: 1,
+        code: 'WELCOME20',
+        type: 'percentage',
+        value: 20,
+        description: 'Welcome discount for new customers',
+        minOrderAmount: 50,
+        maxDiscount: 100,
+        usageLimit: 1000,
+        usedCount: 245,
+        startDate: '2024-01-01T00:00:00Z',
+        endDate: '2024-12-31T23:59:59Z',
+        isActive: true,
+        isPublic: true,
+        categories: ['Electronics', 'Fashion'],
+        createdAt: '2024-01-01T00:00:00Z'
+      },
+      {
+        id: 2,
+        code: 'SAVE50',
+        type: 'fixed',
+        value: 50,
+        description: 'Fixed $50 discount on orders over $200',
+        minOrderAmount: 200,
+        maxDiscount: 50,
+        usageLimit: 500,
+        usedCount: 89,
+        startDate: '2024-01-15T00:00:00Z',
+        endDate: '2024-02-15T23:59:59Z',
+        isActive: true,
+        isPublic: false,
+        categories: ['Electronics'],
+        createdAt: '2024-01-10T00:00:00Z'
+      },
+      {
+        id: 3,
+        code: 'FLASH25',
+        type: 'percentage',
+        value: 25,
+        description: 'Flash sale - 25% off everything',
+        minOrderAmount: 0,
+        maxDiscount: 200,
+        usageLimit: 100,
+        usedCount: 100,
+        startDate: '2024-01-10T00:00:00Z',
+        endDate: '2024-01-12T23:59:59Z',
+        isActive: false,
+        isPublic: true,
+        categories: [],
+        createdAt: '2024-01-08T00:00:00Z'
+      }
+    ]
+
     setLoading(true)
     setTimeout(() => {
       setCoupons(mockCouponsData)
@@ -88,11 +88,11 @@ export default function CouponsPage() {
   const handleCouponAction = (action, couponId) => {
     switch (action) {
       case 'activate':
-        setCoupons(coupons.map(c => c.id === couponId ? {...c, isActive: true} : c))
+        setCoupons(coupons.map(c => c.id === couponId ? { ...c, isActive: true } : c))
         toast.success('Coupon activated successfully!')
         break
       case 'deactivate':
-        setCoupons(coupons.map(c => c.id === couponId ? {...c, isActive: false} : c))
+        setCoupons(coupons.map(c => c.id === couponId ? { ...c, isActive: false } : c))
         toast.warning('Coupon deactivated!')
         break
       case 'delete':
@@ -206,7 +206,7 @@ export default function CouponsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">✅</span>
@@ -216,7 +216,7 @@ export default function CouponsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">👥</span>
@@ -226,7 +226,7 @@ export default function CouponsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">💰</span>
@@ -281,8 +281,8 @@ export default function CouponsPage() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{coupon.usedCount} / {coupon.usageLimit}</div>
                     <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full" 
+                      <div
+                        className="bg-blue-600 h-2 rounded-full"
                         style={{ width: `${(coupon.usedCount / coupon.usageLimit) * 100}%` }}
                       ></div>
                     </div>

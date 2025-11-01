@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { isValidUUID } from '@/lib/uuid-utils'
 
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -14,8 +15,8 @@ export async function GET(request) {
       )
     }
 
-    // Validate that userId is a proper MongoDB ObjectId
-    if (!isValidObjectId(session.user.id)) {
+    // Validate UUID
+    if (!isValidUUID(session.user.id)) {
       return NextResponse.json(
         { error: 'Invalid user ID format' },
         { status: 400 }
@@ -32,8 +33,8 @@ export async function GET(request) {
             brand: true,
             categories: true,
             images: {
-              where: {
-                assignProductAttributeId: 0
+              orderBy: {
+                sortOrder: 'asc'
               },
               take: 1
             },
@@ -55,7 +56,7 @@ export async function GET(request) {
       ...item,
       product: {
         ...item.product,
-        averageRating: item.product.reviews.length > 0 
+        averageRating: item.product.reviews.length > 0
           ? item.product.reviews.reduce((sum, review) => sum + review.rating, 0) / item.product.reviews.length
           : 0,
         reviewCount: item.product.reviews.length
@@ -78,7 +79,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -95,7 +96,7 @@ export async function POST(request) {
       )
     }
 
-    // Check if product exists
+    // Try to find the product first
     const product = await prisma.product.findUnique({
       where: { id: productId }
     })
@@ -107,13 +108,19 @@ export async function POST(request) {
       )
     }
 
+    // Ensure user ID is valid
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 400 }
+      )
+    }
+
     // Check if already in wishlist
-    const existingItem = await prisma.wishlist.findUnique({
+    const existingItem = await prisma.wishlist.findFirst({
       where: {
-        userId_productId: {
-          userId: parseInt(session.user.id),
-          productId: productId
-        }
+        userId: session.user.id,
+        productId: productId
       }
     })
 
@@ -127,7 +134,7 @@ export async function POST(request) {
     // Add to wishlist
     const wishlistItem = await prisma.wishlist.create({
       data: {
-        userId: parseInt(session.user.id),
+        userId: session.user.id,
         productId: productId
       },
       include: {
@@ -136,8 +143,8 @@ export async function POST(request) {
             brand: true,
             categories: true,
             images: {
-              where: {
-                assignProductAttributeId: 0
+              orderBy: {
+                sortOrder: 'asc'
               },
               take: 1
             }

@@ -19,7 +19,7 @@ export default function WishlistPage() {
     if (session?.user) {
       refreshWishlist()
     }
-  }, [session])
+  }, [session, refreshWishlist])
 
   const handleAddToCart = (productId) => {
     addToCart(productId, 1)
@@ -34,7 +34,7 @@ export default function WishlistPage() {
       <Layout>
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">My Wishlist</h1>
-          
+
           <div className="text-center py-12">
             <HeartIcon className="w-24 h-24 text-gray-300 mx-auto mb-4" />
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">Sign in to view your wishlist</h2>
@@ -66,7 +66,7 @@ export default function WishlistPage() {
       <Layout>
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">My Wishlist</h1>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="bg-white rounded-lg shadow-sm border animate-pulse">
@@ -89,7 +89,7 @@ export default function WishlistPage() {
       <Layout>
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">My Wishlist</h1>
-          
+
           <div className="text-center py-12">
             <HeartIcon className="w-24 h-24 text-gray-300 mx-auto mb-4" />
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">Your wishlist is empty</h2>
@@ -119,7 +119,7 @@ export default function WishlistPage() {
               {items.length} {items.length === 1 ? 'item' : 'items'} saved
             </p>
           </div>
-          
+
           <Link
             href="/products"
             className="text-blue-600 hover:text-blue-700 font-medium"
@@ -133,7 +133,7 @@ export default function WishlistPage() {
           {items.map((item) => (
             <div key={item.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border group">
               <div className="relative overflow-hidden rounded-t-lg">
-                <Link href={`/products/${item.product.id}`}>
+                <Link href={`/products/${item.product.slug}`}>
                   <Image
                     src={item.product.images?.[0]?.image || item.product.mainImage || '/placeholder-product.jpg'}
                     alt={item.product.name}
@@ -142,7 +142,7 @@ export default function WishlistPage() {
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
                   />
                 </Link>
-                
+
                 <button
                   onClick={() => handleRemoveFromWishlist(item.product.id)}
                   className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow text-red-500 hover:text-red-600"
@@ -150,37 +150,36 @@ export default function WishlistPage() {
                 >
                   <TrashIcon className="w-5 h-5" />
                 </button>
-                
+
                 {item.product.discount > 0 && (
                   <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
                     -{item.product.discount}%
                   </div>
                 )}
               </div>
-              
+
               <div className="p-4">
-                <Link href={`/products/${item.product.id}`}>
+                <Link href={`/products/${item.product.slug}`}>
                   <h3 className="font-medium text-gray-900 mb-2 hover:text-blue-600 line-clamp-2">
                     {item.product.name}
                   </h3>
                 </Link>
-                
+
                 {item.product.brand && (
                   <p className="text-sm text-gray-500 mb-2">
                     {item.product.brand.name}
                   </p>
                 )}
-                
+
                 <div className="flex items-center mb-3">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
                       <StarIcon
                         key={i}
-                        className={`w-4 h-4 ${
-                          i < Math.floor(item.product.averageRating || 0)
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-300'
-                        }`}
+                        className={`w-4 h-4 ${i < Math.floor(item.product.averageRating || 0)
+                          ? 'text-yellow-400 fill-current'
+                          : 'text-gray-300'
+                          }`}
                       />
                     ))}
                   </div>
@@ -188,7 +187,7 @@ export default function WishlistPage() {
                     ({item.product.reviewCount || 0})
                   </span>
                 </div>
-                
+
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2">
                     <span className="text-lg font-bold text-gray-900">
@@ -201,7 +200,7 @@ export default function WishlistPage() {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleAddToCart(item.product.id)}
@@ -214,7 +213,7 @@ export default function WishlistPage() {
                     </span>
                   </button>
                 </div>
-                
+
                 {item.product.quantity <= 5 && item.product.quantity > 0 && (
                   <p className="text-xs text-orange-600 mt-2">
                     Only {item.product.quantity} left in stock!
@@ -239,7 +238,7 @@ export default function WishlistPage() {
           >
             Add All to Cart
           </button>
-          
+
           <Link
             href="/products"
             className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium text-center"

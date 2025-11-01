@@ -18,7 +18,7 @@ export default function CategoriesPage() {
       setLoading(true)
       const response = await fetch('/api/categories?includeProducts=true')
       const data = await response.json()
-      
+
       if (response.ok) {
         setCategories(data || [])
       }
@@ -57,7 +57,7 @@ export default function CategoriesPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Shop by Category</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Explore our wide range of product categories and find exactly what you're looking for.
+            Explore our wide range of product categories and find exactly what you are looking for.
           </p>
         </div>
 
@@ -88,12 +88,12 @@ export default function CategoriesPage() {
                   <p className="text-sm opacity-90">{category.productCount} products</p>
                 </div>
               </div>
-              
+
               <div className="p-6">
                 <p className="text-gray-600 mb-4 line-clamp-2">
                   {category.description || `Discover amazing ${category.name.toLowerCase()} products at great prices.`}
                 </p>
-                
+
                 {category.products && category.products.length > 0 && (
                   <div className="flex -space-x-2 mb-4">
                     {category.products.slice(0, 4).map((product, index) => (
@@ -112,7 +112,7 @@ export default function CategoriesPage() {
                     )}
                   </div>
                 )}
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-blue-600 font-medium group-hover:text-blue-700">
                     Browse Products →
@@ -141,7 +141,7 @@ export default function CategoriesPage() {
         {/* Call to Action */}
         <div className="mt-16 text-center">
           <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-2xl p-8 text-white">
-            <h2 className="text-3xl font-bold mb-4">Can't find what you're looking for?</h2>
+            <h2 className="text-3xl font-bold mb-4">Cannot find what you are looking for?</h2>
             <p className="text-xl mb-6 text-blue-100">
               Browse all our products or use our search feature to find exactly what you need.
             </p>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
@@ -35,19 +35,10 @@ export default function AdminReportsPage() {
     recentOrders: []
   })
 
-  useEffect(() => {
-    if (status === 'loading') return
-    if (!session?.user || session.user.userType !== 'admin') {
-      router.push('/admin/login')
-      return
-    }
-    fetchReportData()
-  }, [session, status, router, dateRange])
-
-  const fetchReportData = async () => {
+  const fetchReportData = useCallback(async () => {
     try {
       setLoading(true)
-      
+
       // Mock data - in real app, this would come from API
       const mockData = {
         overview: {
@@ -85,30 +76,39 @@ export default function AdminReportsPage() {
           { id: 'ORD-005', customer: 'Charlie Wilson', amount: 79.99, status: 'shipped', date: '2024-01-18' }
         ]
       }
-      
+
       setReportData(mockData)
     } catch (error) {
       console.error('Failed to fetch report data:', error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [dateRange])
+
+  useEffect(() => {
+    if (status === 'loading') return
+    if (!session?.user || session.user.userType !== 'admin') {
+      router.push('/admin/login')
+      return
+    }
+    fetchReportData()
+  }, [session, status, router, fetchReportData])
 
   const generateSalesChartData = (days) => {
     const data = []
     const today = new Date()
-    
+
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date(today)
       date.setDate(date.getDate() - i)
-      
+
       data.push({
         date: date.toISOString().split('T')[0],
         revenue: Math.floor(Math.random() * 2000) + 500,
         orders: Math.floor(Math.random() * 20) + 5
       })
     }
-    
+
     return data
   }
 
@@ -140,9 +140,9 @@ export default function AdminReportsPage() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Sales Reports</h1>
-            <p className="text-gray-600">Analyze your store's performance and sales data</p>
+            <p className="text-gray-600">Analyze your store performance and sales data</p>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <select
               value={dateRange}
@@ -154,7 +154,7 @@ export default function AdminReportsPage() {
               <option value="90">Last 90 days</option>
               <option value="365">Last year</option>
             </select>
-            
+
             <button
               onClick={exportReport}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
@@ -246,14 +246,14 @@ export default function AdminReportsPage() {
               <div key={index} className="flex flex-col items-center flex-1">
                 <div className="w-full bg-blue-100 rounded-t-lg flex flex-col justify-end relative group">
                   {/* Revenue bar */}
-                  <div 
+                  <div
                     className="w-full bg-blue-600 rounded-t-lg transition-all duration-300 hover:bg-blue-700"
-                    style={{ 
+                    style={{
                       height: `${(day.revenue / Math.max(...reportData.salesChart.map(d => d.revenue))) * 200}px`,
                       minHeight: '10px'
                     }}
                   />
-                  
+
                   {/* Tooltip */}
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                     Revenue: ${day.revenue}<br />
@@ -329,7 +329,7 @@ export default function AdminReportsPage() {
                     <span className="text-sm text-gray-900">{stat.count}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
+                    <div
                       className={`h-2 rounded-full ${index === 0 ? 'bg-blue-600' : 'bg-green-600'}`}
                       style={{ width: `${stat.percentage}%` }}
                     />
@@ -361,11 +361,10 @@ export default function AdminReportsPage() {
                       <td className="py-3 text-sm text-gray-900">{order.customer}</td>
                       <td className="py-3 text-sm text-gray-900">${order.amount}</td>
                       <td className="py-3">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                          order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                              'bg-yellow-100 text-yellow-800'
+                          }`}>
                           {order.status}
                         </span>
                       </td>

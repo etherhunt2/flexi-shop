@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { parseFilterId } from '@/lib/mongodb-utils'
+import { isValidUUID } from '@/lib/uuid-utils'
 
 export async function GET(request) {
   try {
@@ -25,20 +25,14 @@ export async function GET(request) {
       }
     }
 
-    if (category) {
-      const categoryId = parseFilterId(category);
-      if (categoryId) {
-        where.categoryIds = {
-          has: categoryId
-        }
+    if (category && isValidUUID(category)) {
+      where.categoryIds = {
+        has: category
       }
     }
 
-    if (brand) {
-      const brandId = parseFilterId(brand);
-      if (brandId) {
-        where.brandId = brandId
-      }
+    if (brand && isValidUUID(brand)) {
+      where.brandId = brand
     }
 
     if (search) {
@@ -80,8 +74,8 @@ export async function GET(request) {
             }
           },
           images: {
-            where: {
-              assignProductAttributeId: ""
+            orderBy: {
+              sortOrder: 'asc'
             },
             take: 1
           }
@@ -96,7 +90,7 @@ export async function GET(request) {
     // Calculate average rating for each product
     const productsWithRating = products.map(product => ({
       ...product,
-      averageRating: product.reviews.length > 0 
+      averageRating: product.reviews.length > 0
         ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
         : 0,
       reviewCount: product.reviews.length
@@ -123,10 +117,10 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const data = await request.json()
-    
+
     // This would typically require admin authentication
     // Add authentication middleware here
-    
+
     const product = await prisma.product.create({
       data: {
         ...data,

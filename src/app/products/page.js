@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
+import { useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Layout from '@/components/Layout'
 import Link from 'next/link'
@@ -31,23 +32,18 @@ function ProductsContent() {
   const { addToCart } = useCart()
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
 
-  useEffect(() => {
-    fetchProducts()
-    fetchFiltersData()
-  }, [filters])
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true)
       const queryParams = new URLSearchParams()
-      
+
       Object.entries(filters).forEach(([key, value]) => {
         if (value) queryParams.append(key, value)
       })
 
       const response = await fetch(`/api/products?${queryParams}`)
       const data = await response.json()
-      
+
       if (response.ok) {
         setProducts(data.products || [])
         setPagination(data.pagination || {})
@@ -57,9 +53,9 @@ function ProductsContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
 
-  const fetchFiltersData = async () => {
+  const fetchFiltersData = useCallback(async () => {
     try {
       const [categoriesRes, brandsRes] = await Promise.all([
         fetch('/api/categories'),
@@ -76,7 +72,14 @@ function ProductsContent() {
     } catch (error) {
       console.error('Failed to fetch filter data:', error)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchProducts()
+    fetchFiltersData()
+  }, [fetchProducts, fetchFiltersData])
+
+
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
@@ -126,7 +129,7 @@ function ProductsContent() {
               {pagination.total ? `Showing ${pagination.total} products` : 'Browse our collection'}
             </p>
           </div>
-          
+
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -135,7 +138,7 @@ function ProductsContent() {
               <FunnelIcon className="w-5 h-5" />
               <span>Filters</span>
             </button>
-            
+
             <select
               value={filters.sort}
               onChange={(e) => handleFilterChange('sort', e.target.value)}
@@ -286,7 +289,7 @@ function ProductsContent() {
                         )}
                       </div>
                       <div className="p-4">
-                        <Link href={`/products/${product.id}`}>
+                        <Link href={`/products/${product.slug}`}>
                           <h3 className="font-medium text-gray-900 mb-2 hover:text-blue-600 line-clamp-2">
                             {product.name}
                           </h3>
@@ -299,11 +302,10 @@ function ProductsContent() {
                             {[...Array(5)].map((_, i) => (
                               <StarIcon
                                 key={i}
-                                className={`w-4 h-4 ${
-                                  i < Math.floor(product.averageRating || 0)
-                                    ? 'text-yellow-400'
-                                    : 'text-gray-300'
-                                }`}
+                                className={`w-4 h-4 ${i < Math.floor(product.averageRating || 0)
+                                  ? 'text-yellow-400'
+                                  : 'text-gray-300'
+                                  }`}
                               />
                             ))}
                           </div>
@@ -345,24 +347,23 @@ function ProductsContent() {
                       >
                         Previous
                       </button>
-                      
+
                       {[...Array(pagination.pages)].map((_, i) => {
                         const page = i + 1
                         return (
                           <button
                             key={page}
                             onClick={() => handlePageChange(page)}
-                            className={`px-3 py-2 border rounded-lg ${
-                              page === pagination.page
-                                ? 'bg-blue-600 text-white border-blue-600'
-                                : 'border-gray-300 hover:bg-gray-50'
-                            }`}
+                            className={`px-3 py-2 border rounded-lg ${page === pagination.page
+                              ? 'bg-blue-600 text-white border-blue-600'
+                              : 'border-gray-300 hover:bg-gray-50'
+                              }`}
                           >
                             {page}
                           </button>
                         )
                       })}
-                      
+
                       <button
                         onClick={() => handlePageChange(pagination.page + 1)}
                         disabled={pagination.page >= pagination.pages}

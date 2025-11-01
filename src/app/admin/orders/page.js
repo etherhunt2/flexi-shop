@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
@@ -25,93 +25,101 @@ export default function AllOrdersPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
 
-  // Combined mock data from all order types
-  const mockAllOrders = [
-    // Pending Orders
-    {
-      id: 'ORD-2024-001',
-      customerName: 'John Doe',
-      customerEmail: 'john.doe@example.com',
-      orderDate: '2024-01-15T09:30:00Z',
-      totalAmount: 1299.99,
-      status: 'pending',
-      paymentStatus: 'paid',
-      itemCount: 1
-    },
-    {
-      id: 'ORD-2024-002',
-      customerName: 'Jane Smith',
-      customerEmail: 'jane.smith@example.com',
-      orderDate: '2024-01-15T10:15:00Z',
-      totalAmount: 1899.98,
-      status: 'pending',
-      paymentStatus: 'paid',
-      itemCount: 2
-    },
-    // Processing Orders
-    {
-      id: 'ORD-2024-005',
-      customerName: 'Emily Davis',
-      customerEmail: 'emily.davis@example.com',
-      orderDate: '2024-01-14T14:20:00Z',
-      totalAmount: 899.99,
-      status: 'processing',
-      paymentStatus: 'paid',
-      itemCount: 1
-    },
-    {
-      id: 'ORD-2024-006',
-      customerName: 'Robert Wilson',
-      customerEmail: 'robert.wilson@example.com',
-      orderDate: '2024-01-14T16:45:00Z',
-      totalAmount: 1799.98,
-      status: 'processing',
-      paymentStatus: 'paid',
-      itemCount: 2
-    },
-    // Shipped Orders
-    {
-      id: 'ORD-2024-009',
-      customerName: 'Alex Johnson',
-      customerEmail: 'alex.johnson@example.com',
-      orderDate: '2024-01-13T10:00:00Z',
-      totalAmount: 699.99,
-      status: 'shipped',
-      paymentStatus: 'paid',
-      itemCount: 1
-    },
-    {
-      id: 'ORD-2024-010',
-      customerName: 'Maria Garcia',
-      customerEmail: 'maria.garcia@example.com',
-      orderDate: '2024-01-12T16:30:00Z',
-      totalAmount: 1299.99,
-      status: 'shipped',
-      paymentStatus: 'paid',
-      itemCount: 1
-    },
-    // Delivered Orders
-    {
-      id: 'ORD-2024-011',
-      customerName: 'Sarah Connor',
-      customerEmail: 'sarah.connor@example.com',
-      orderDate: '2024-01-11T15:30:00Z',
-      totalAmount: 899.99,
-      status: 'delivered',
-      paymentStatus: 'paid',
-      itemCount: 1
-    },
-    {
-      id: 'ORD-2024-012',
-      customerName: 'John Matrix',
-      customerEmail: 'john.matrix@example.com',
-      orderDate: '2024-01-10T11:20:00Z',
-      totalAmount: 1599.99,
-      status: 'delivered',
-      paymentStatus: 'paid',
-      itemCount: 1
-    }
-  ]
+  const loadOrders = useCallback(() => {
+    // Combined mock data from all order types
+    const mockAllOrders = [
+      // Pending Orders
+      {
+        id: 'ORD-2024-001',
+        customerName: 'John Doe',
+        customerEmail: 'john.doe@example.com',
+        orderDate: '2024-01-15T09:30:00Z',
+        totalAmount: 1299.99,
+        status: 'pending',
+        paymentStatus: 'paid',
+        itemCount: 1
+      },
+      {
+        id: 'ORD-2024-002',
+        customerName: 'Jane Smith',
+        customerEmail: 'jane.smith@example.com',
+        orderDate: '2024-01-15T10:15:00Z',
+        totalAmount: 1899.98,
+        status: 'pending',
+        paymentStatus: 'paid',
+        itemCount: 2
+      },
+      // Processing Orders
+      {
+        id: 'ORD-2024-005',
+        customerName: 'Emily Davis',
+        customerEmail: 'emily.davis@example.com',
+        orderDate: '2024-01-14T14:20:00Z',
+        totalAmount: 899.99,
+        status: 'processing',
+        paymentStatus: 'paid',
+        itemCount: 1
+      },
+      {
+        id: 'ORD-2024-006',
+        customerName: 'Robert Wilson',
+        customerEmail: 'robert.wilson@example.com',
+        orderDate: '2024-01-14T16:45:00Z',
+        totalAmount: 1799.98,
+        status: 'processing',
+        paymentStatus: 'paid',
+        itemCount: 2
+      },
+      // Shipped Orders
+      {
+        id: 'ORD-2024-009',
+        customerName: 'Alex Johnson',
+        customerEmail: 'alex.johnson@example.com',
+        orderDate: '2024-01-13T10:00:00Z',
+        totalAmount: 699.99,
+        status: 'shipped',
+        paymentStatus: 'paid',
+        itemCount: 1
+      },
+      {
+        id: 'ORD-2024-010',
+        customerName: 'Maria Garcia',
+        customerEmail: 'maria.garcia@example.com',
+        orderDate: '2024-01-12T16:30:00Z',
+        totalAmount: 1299.99,
+        status: 'shipped',
+        paymentStatus: 'paid',
+        itemCount: 1
+      },
+      // Delivered Orders
+      {
+        id: 'ORD-2024-011',
+        customerName: 'Sarah Connor',
+        customerEmail: 'sarah.connor@example.com',
+        orderDate: '2024-01-11T15:30:00Z',
+        totalAmount: 899.99,
+        status: 'delivered',
+        paymentStatus: 'paid',
+        itemCount: 1
+      },
+      {
+        id: 'ORD-2024-012',
+        customerName: 'John Matrix',
+        customerEmail: 'john.matrix@example.com',
+        orderDate: '2024-01-10T11:20:00Z',
+        totalAmount: 1599.99,
+        status: 'delivered',
+        paymentStatus: 'paid',
+        itemCount: 1
+      }
+    ]
+
+    setLoading(true)
+    setTimeout(() => {
+      setOrders(mockAllOrders)
+      setLoading(false)
+    }, 1000)
+  }, [])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -120,15 +128,7 @@ export default function AllOrdersPage() {
       return
     }
     loadOrders()
-  }, [session, status, router])
-
-  const loadOrders = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setOrders(mockAllOrders)
-      setLoading(false)
-    }, 1000)
-  }
+  }, [session, status, router, loadOrders])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -227,7 +227,7 @@ export default function AllOrdersPage() {
 
         {/* Quick Navigation */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Link 
+          <Link
             href="/admin/orders/pending"
             className="bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 rounded-lg p-4 transition-colors"
           >
@@ -240,7 +240,7 @@ export default function AllOrdersPage() {
             </div>
           </Link>
 
-          <Link 
+          <Link
             href="/admin/orders/processing"
             className="bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg p-4 transition-colors"
           >
@@ -253,7 +253,7 @@ export default function AllOrdersPage() {
             </div>
           </Link>
 
-          <Link 
+          <Link
             href="/admin/orders/shipped"
             className="bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg p-4 transition-colors"
           >
@@ -266,7 +266,7 @@ export default function AllOrdersPage() {
             </div>
           </Link>
 
-          <Link 
+          <Link
             href="/admin/orders/delivered"
             className="bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg p-4 transition-colors"
           >
@@ -291,7 +291,7 @@ export default function AllOrdersPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <DollarSignIcon className="w-8 h-8 text-green-600" />

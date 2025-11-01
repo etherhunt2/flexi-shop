@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
@@ -25,82 +25,90 @@ export default function ProcessingOrdersPage() {
   const [loading, setLoading] = useState(true)
   const [selectedOrders, setSelectedOrders] = useState([])
 
-  // Mock processing orders data
-  const mockProcessingOrders = [
-    {
-      id: 'ORD-2024-005',
-      customerId: 105,
-      customerName: 'Emily Davis',
-      customerEmail: 'emily.davis@example.com',
-      orderDate: '2024-01-14T14:20:00Z',
-      processingStarted: '2024-01-15T08:00:00Z',
-      totalAmount: 899.99,
-      currency: 'USD',
-      shippingAddress: '555 Broadway, Seattle, WA 98101',
-      items: [
-        { id: 6, name: 'iPad Pro 12.9"', quantity: 1, price: 899.99, image: '/placeholder-product.svg', status: 'picking' }
-      ],
-      currentStage: 'picking',
-      estimatedCompletion: '2024-01-16T12:00:00Z',
-      assignedWarehouse: 'Seattle Warehouse',
-      trackingNumber: null
-    },
-    {
-      id: 'ORD-2024-006',
-      customerId: 106,
-      customerName: 'Robert Wilson',
-      customerEmail: 'robert.wilson@example.com',
-      orderDate: '2024-01-14T16:45:00Z',
-      processingStarted: '2024-01-15T09:30:00Z',
-      totalAmount: 1799.98,
-      currency: 'USD',
-      shippingAddress: '777 Oak St, Portland, OR 97201',
-      items: [
-        { id: 7, name: 'Gaming Laptop RTX 4070', quantity: 1, price: 1499.99, image: '/placeholder-product.svg', status: 'packing' },
-        { id: 8, name: 'Gaming Mouse', quantity: 1, price: 299.99, image: '/placeholder-product.svg', status: 'picked' }
-      ],
-      currentStage: 'packing',
-      estimatedCompletion: '2024-01-16T15:00:00Z',
-      assignedWarehouse: 'Portland Warehouse',
-      trackingNumber: null
-    },
-    {
-      id: 'ORD-2024-007',
-      customerId: 107,
-      customerName: 'Lisa Anderson',
-      customerEmail: 'lisa.anderson@example.com',
-      orderDate: '2024-01-14T18:10:00Z',
-      processingStarted: '2024-01-15T10:15:00Z',
-      totalAmount: 599.99,
-      currency: 'USD',
-      shippingAddress: '999 Pine Ave, Denver, CO 80201',
-      items: [
-        { id: 9, name: 'Wireless Earbuds Pro', quantity: 2, price: 299.99, image: '/placeholder-product.svg', status: 'quality_check' }
-      ],
-      currentStage: 'quality_check',
-      estimatedCompletion: '2024-01-16T10:00:00Z',
-      assignedWarehouse: 'Denver Warehouse',
-      trackingNumber: null
-    },
-    {
-      id: 'ORD-2024-008',
-      customerId: 108,
-      customerName: 'Kevin Brown',
-      customerEmail: 'kevin.brown@example.com',
-      orderDate: '2024-01-14T20:30:00Z',
-      processingStarted: '2024-01-15T11:00:00Z',
-      totalAmount: 2299.99,
-      currency: 'USD',
-      shippingAddress: '111 Maple Dr, Phoenix, AZ 85001',
-      items: [
-        { id: 10, name: 'Professional Camera', quantity: 1, price: 2299.99, image: '/placeholder-product.svg', status: 'ready_to_ship' }
-      ],
-      currentStage: 'ready_to_ship',
-      estimatedCompletion: '2024-01-15T16:00:00Z',
-      assignedWarehouse: 'Phoenix Warehouse',
-      trackingNumber: 'TRK-123456789'
-    }
-  ]
+  const loadOrders = useCallback(() => {
+    // Mock processing orders data
+    const mockProcessingOrders = [
+      {
+        id: 'ORD-2024-005',
+        customerId: 105,
+        customerName: 'Emily Davis',
+        customerEmail: 'emily.davis@example.com',
+        orderDate: '2024-01-14T14:20:00Z',
+        processingStarted: '2024-01-15T08:00:00Z',
+        totalAmount: 899.99,
+        currency: 'USD',
+        shippingAddress: '555 Broadway, Seattle, WA 98101',
+        items: [
+          { id: 6, name: 'iPad Pro 12.9"', quantity: 1, price: 899.99, image: '/placeholder-product.svg', status: 'picking' }
+        ],
+        currentStage: 'picking',
+        estimatedCompletion: '2024-01-16T12:00:00Z',
+        assignedWarehouse: 'Seattle Warehouse',
+        trackingNumber: null
+      },
+      {
+        id: 'ORD-2024-006',
+        customerId: 106,
+        customerName: 'Robert Wilson',
+        customerEmail: 'robert.wilson@example.com',
+        orderDate: '2024-01-14T16:45:00Z',
+        processingStarted: '2024-01-15T09:30:00Z',
+        totalAmount: 1799.98,
+        currency: 'USD',
+        shippingAddress: '777 Oak St, Portland, OR 97201',
+        items: [
+          { id: 7, name: 'Gaming Laptop RTX 4070', quantity: 1, price: 1499.99, image: '/placeholder-product.svg', status: 'packing' },
+          { id: 8, name: 'Gaming Mouse', quantity: 1, price: 299.99, image: '/placeholder-product.svg', status: 'picked' }
+        ],
+        currentStage: 'packing',
+        estimatedCompletion: '2024-01-16T15:00:00Z',
+        assignedWarehouse: 'Portland Warehouse',
+        trackingNumber: null
+      },
+      {
+        id: 'ORD-2024-007',
+        customerId: 107,
+        customerName: 'Lisa Anderson',
+        customerEmail: 'lisa.anderson@example.com',
+        orderDate: '2024-01-14T18:10:00Z',
+        processingStarted: '2024-01-15T10:15:00Z',
+        totalAmount: 599.99,
+        currency: 'USD',
+        shippingAddress: '999 Pine Ave, Denver, CO 80201',
+        items: [
+          { id: 9, name: 'Wireless Earbuds Pro', quantity: 2, price: 299.99, image: '/placeholder-product.svg', status: 'quality_check' }
+        ],
+        currentStage: 'quality_check',
+        estimatedCompletion: '2024-01-16T10:00:00Z',
+        assignedWarehouse: 'Denver Warehouse',
+        trackingNumber: null
+      },
+      {
+        id: 'ORD-2024-008',
+        customerId: 108,
+        customerName: 'Kevin Brown',
+        customerEmail: 'kevin.brown@example.com',
+        orderDate: '2024-01-14T20:30:00Z',
+        processingStarted: '2024-01-15T11:00:00Z',
+        totalAmount: 2299.99,
+        currency: 'USD',
+        shippingAddress: '111 Maple Dr, Phoenix, AZ 85001',
+        items: [
+          { id: 10, name: 'Professional Camera', quantity: 1, price: 2299.99, image: '/placeholder-product.svg', status: 'ready_to_ship' }
+        ],
+        currentStage: 'ready_to_ship',
+        estimatedCompletion: '2024-01-15T16:00:00Z',
+        assignedWarehouse: 'Phoenix Warehouse',
+        trackingNumber: 'TRK-123456789'
+      }
+    ]
+
+    setLoading(true)
+    setTimeout(() => {
+      setOrders(mockProcessingOrders)
+      setLoading(false)
+    }, 1000)
+  }, [])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -109,15 +117,7 @@ export default function ProcessingOrdersPage() {
       return
     }
     loadOrders()
-  }, [session, status, router])
-
-  const loadOrders = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setOrders(mockProcessingOrders)
-      setLoading(false)
-    }, 1000)
-  }
+  }, [session, status, router, loadOrders])
 
   const getStageColor = (stage) => {
     switch (stage) {
@@ -195,8 +195,8 @@ export default function ProcessingOrdersPage() {
   }
 
   const toggleOrderSelection = (orderId) => {
-    setSelectedOrders(prev => 
-      prev.includes(orderId) 
+    setSelectedOrders(prev =>
+      prev.includes(orderId)
         ? prev.filter(id => id !== orderId)
         : [...prev, orderId]
     )
@@ -257,7 +257,7 @@ export default function ProcessingOrdersPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <DollarSignIcon className="w-8 h-8 text-green-600" />
@@ -267,7 +267,7 @@ export default function ProcessingOrdersPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <TruckIcon className="w-8 h-8 text-purple-600" />
@@ -277,7 +277,7 @@ export default function ProcessingOrdersPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <ClockIcon className="w-8 h-8 text-orange-600" />
@@ -392,8 +392,8 @@ export default function ProcessingOrdersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                        <div
+                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                           style={{ width: `${progressPercentage}%` }}
                         ></div>
                       </div>

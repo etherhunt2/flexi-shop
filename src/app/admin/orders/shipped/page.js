@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
@@ -20,36 +20,44 @@ export default function ShippedOrdersPage() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const mockShippedOrders = [
-    {
-      id: 'ORD-2024-009',
-      customerName: 'Alex Johnson',
-      customerEmail: 'alex.johnson@example.com',
-      shippedDate: '2024-01-14T10:00:00Z',
-      estimatedDelivery: '2024-01-16T14:00:00Z',
-      totalAmount: 699.99,
-      trackingNumber: 'TRK-987654321',
-      carrier: 'FedEx',
-      shippingAddress: '123 Tech Street, San Francisco, CA 94102',
-      status: 'in_transit',
-      lastUpdate: '2024-01-15T08:30:00Z',
-      currentLocation: 'Oakland Distribution Center'
-    },
-    {
-      id: 'ORD-2024-010',
-      customerName: 'Maria Garcia',
-      customerEmail: 'maria.garcia@example.com',
-      shippedDate: '2024-01-13T16:30:00Z',
-      estimatedDelivery: '2024-01-15T12:00:00Z',
-      totalAmount: 1299.99,
-      trackingNumber: 'TRK-456789123',
-      carrier: 'UPS',
-      shippingAddress: '456 Innovation Ave, Austin, TX 78701',
-      status: 'out_for_delivery',
-      lastUpdate: '2024-01-15T06:00:00Z',
-      currentLocation: 'Austin Local Facility'
-    }
-  ]
+  const loadOrders = useCallback(() => {
+    const mockShippedOrders = [
+      {
+        id: 'ORD-2024-009',
+        customerName: 'Alex Johnson',
+        customerEmail: 'alex.johnson@example.com',
+        shippedDate: '2024-01-14T10:00:00Z',
+        estimatedDelivery: '2024-01-16T14:00:00Z',
+        totalAmount: 699.99,
+        trackingNumber: 'TRK-987654321',
+        carrier: 'FedEx',
+        shippingAddress: '123 Tech Street, San Francisco, CA 94102',
+        status: 'in_transit',
+        lastUpdate: '2024-01-15T08:30:00Z',
+        currentLocation: 'Oakland Distribution Center'
+      },
+      {
+        id: 'ORD-2024-010',
+        customerName: 'Maria Garcia',
+        customerEmail: 'maria.garcia@example.com',
+        shippedDate: '2024-01-13T16:30:00Z',
+        estimatedDelivery: '2024-01-15T12:00:00Z',
+        totalAmount: 1299.99,
+        trackingNumber: 'TRK-456789123',
+        carrier: 'UPS',
+        shippingAddress: '456 Innovation Ave, Austin, TX 78701',
+        status: 'out_for_delivery',
+        lastUpdate: '2024-01-15T06:00:00Z',
+        currentLocation: 'Austin Local Facility'
+      }
+    ]
+
+    setLoading(true)
+    setTimeout(() => {
+      setOrders(mockShippedOrders)
+      setLoading(false)
+    }, 1000)
+  }, [])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -58,15 +66,7 @@ export default function ShippedOrdersPage() {
       return
     }
     loadOrders()
-  }, [session, status, router])
-
-  const loadOrders = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setOrders(mockShippedOrders)
-      setLoading(false)
-    }, 1000)
-  }
+  }, [session, status, router, loadOrders])
 
   const handleOrderAction = (action, orderId) => {
     switch (action) {

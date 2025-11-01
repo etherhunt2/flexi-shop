@@ -26,8 +26,8 @@ export async function GET(request) {
             include: {
               categories: true,
               images: {
-                where: {
-                  assignProductAttributeId: 0
+                orderBy: {
+                  sortOrder: 'asc'
                 },
                 take: 1
               },
@@ -60,7 +60,7 @@ export async function GET(request) {
         if (includeProducts && brand.products) {
           processedProducts = brand.products.map(product => ({
             ...product,
-            averageRating: product.reviews.length > 0 
+            averageRating: product.reviews.length > 0
               ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
               : 0,
             reviewCount: product.reviews.length
@@ -88,10 +88,10 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const data = await request.json()
-    
+
     // This would typically require admin authentication
     // Add authentication middleware here
-    
+
     const brand = await prisma.brand.create({
       data: {
         ...data,

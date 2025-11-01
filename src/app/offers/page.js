@@ -25,10 +25,10 @@ export default function OffersPage() {
       // Since we don't have offers API yet, let's show discounted products
       const response = await fetch('/api/products?limit=20')
       const data = await response.json()
-      
+
       if (response.ok) {
         // Filter products that have discounts
-        const discountedProducts = data.products?.filter(product => 
+        const discountedProducts = data.products?.filter(product =>
           product.discountedPrice && product.discountedPrice < product.price
         ) || []
         setOffers(discountedProducts)
@@ -61,11 +61,11 @@ export default function OffersPage() {
     const now = new Date()
     const endOfDay = new Date(now)
     endOfDay.setHours(23, 59, 59, 999)
-    
+
     const diff = endOfDay - now
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-    
+
     return { hours, minutes }
   }
 
@@ -104,7 +104,7 @@ export default function OffersPage() {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-6">
             Don't miss out on these amazing deals! Limited time offers with incredible savings.
           </p>
-          
+
           {/* Countdown Timer */}
           <div className="inline-flex items-center space-x-2 bg-red-100 text-red-800 px-4 py-2 rounded-full">
             <ClockIcon className="w-5 h-5" />
@@ -142,23 +142,23 @@ export default function OffersPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
               {offers.map((product) => {
                 const discountPercent = calculateDiscount(product.price, product.discountedPrice)
-                
+
                 return (
                   <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow group border relative overflow-hidden">
                     {/* Discount Badge */}
                     <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
                       -{discountPercent}%
                     </div>
-                    
+
                     {/* Hot Deal Badge */}
                     {discountPercent >= 30 && (
                       <div className="absolute top-3 right-3 bg-orange-500 text-white px-2 py-1 rounded text-xs font-bold z-10">
                         🔥 HOT
                       </div>
                     )}
-                    
+
                     <div className="relative overflow-hidden rounded-t-lg">
-                      <Link href={`/products/${product.id}`}>
+                      <Link href={`/products/${product.slug}`}>
                         <Image
                           src={product.mainImage || '/placeholder-product.jpg'}
                           alt={product.name}
@@ -167,7 +167,7 @@ export default function OffersPage() {
                           className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
                         />
                       </Link>
-                      
+
                       <button
                         onClick={() => handleWishlistToggle(product.id)}
                         className="absolute bottom-3 right-3 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
@@ -179,30 +179,29 @@ export default function OffersPage() {
                         )}
                       </button>
                     </div>
-                    
+
                     <div className="p-4">
-                      <Link href={`/products/${product.id}`}>
+                      <Link href={`/products/${product.slug}`}>
                         <h3 className="font-medium text-gray-900 mb-2 hover:text-blue-600 line-clamp-2">
                           {product.name}
                         </h3>
                       </Link>
-                      
+
                       {product.brand && (
                         <p className="text-sm text-gray-500 mb-2">
                           {product.brand.name}
                         </p>
                       )}
-                      
+
                       <div className="flex items-center mb-3">
                         <div className="flex items-center">
                           {[...Array(5)].map((_, i) => (
                             <StarIcon
                               key={i}
-                              className={`w-4 h-4 ${
-                                i < Math.floor(product.averageRating || 0)
+                              className={`w-4 h-4 ${i < Math.floor(product.averageRating || 0)
                                   ? 'text-yellow-400'
                                   : 'text-gray-300'
-                              }`}
+                                }`}
                             />
                           ))}
                         </div>
@@ -210,7 +209,7 @@ export default function OffersPage() {
                           ({product.reviewCount || 0})
                         </span>
                       </div>
-                      
+
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-2">
                           <span className="text-lg font-bold text-red-600">
@@ -224,7 +223,7 @@ export default function OffersPage() {
                           Save ${(product.price - product.discountedPrice).toFixed(2)}
                         </span>
                       </div>
-                      
+
                       <button
                         onClick={() => handleAddToCart(product.id)}
                         disabled={product.quantity <= 0}
@@ -235,7 +234,7 @@ export default function OffersPage() {
                           {product.quantity > 0 ? 'Add to Cart' : 'Out of Stock'}
                         </span>
                       </button>
-                      
+
                       {product.quantity <= 10 && product.quantity > 0 && (
                         <p className="text-xs text-orange-600 mt-2 text-center">
                           Only {product.quantity} left!

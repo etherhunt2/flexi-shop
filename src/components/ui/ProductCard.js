@@ -18,10 +18,10 @@ export default function ProductCard({ product, onAddToCart, onWishlistToggle, is
             height={300}
             className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
           />
-          
+
           {/* Overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          
+
           {/* Wishlist Button */}
           <button
             onClick={() => onWishlistToggle(product.id)}
@@ -33,7 +33,7 @@ export default function ProductCard({ product, onAddToCart, onWishlistToggle, is
               <HeartOutlineIcon className="w-5 h-5 text-gray-400 hover:text-red-400" />
             )}
           </button>
-          
+
           {/* Discount Badge */}
           {product.discount > 0 && (
             <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg animate-pulse">
@@ -43,8 +43,8 @@ export default function ProductCard({ product, onAddToCart, onWishlistToggle, is
 
           {/* Quick View Badge */}
           <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-            <Link 
-              href={`/products/${product.id}`}
+            <Link
+              href={`/products/${product.slug}`}
               className="bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-300"
             >
               Quick View
@@ -54,23 +54,22 @@ export default function ProductCard({ product, onAddToCart, onWishlistToggle, is
 
         {/* Product Info */}
         <div className="p-6 space-y-4">
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/products/${product.slug}`}>
             <h3 className="font-bold text-gray-900 mb-2 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:bg-clip-text hover:text-transparent transition-all duration-300 line-clamp-2">
               {product.name}
             </h3>
           </Link>
-          
+
           {/* Rating */}
           <div className="flex items-center gap-2">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <StarIcon
                   key={i}
-                  className={`w-4 h-4 ${
-                    i < Math.floor(product.averageRating || 0)
+                  className={`w-4 h-4 ${i < Math.floor(product.averageRating || 0)
                       ? 'text-yellow-400'
                       : 'text-gray-300'
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -78,7 +77,7 @@ export default function ProductCard({ product, onAddToCart, onWishlistToggle, is
               ({product.reviewCount || 0})
             </span>
           </div>
-          
+
           {/* Price and Cart */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
@@ -93,7 +92,7 @@ export default function ProductCard({ product, onAddToCart, onWishlistToggle, is
                 )}
               </div>
             </div>
-            
+
             <button
               onClick={() => onAddToCart(product.id)}
               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white p-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"

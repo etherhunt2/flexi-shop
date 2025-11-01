@@ -15,7 +15,7 @@
   "env": {
     "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
   },
-  "buildCommand": "npx prisma generate && next build",
+  "buildCommand": "pnpm run vercel-build",
   "installCommand": "pnpm install",
   "devCommand": "next dev"
 }

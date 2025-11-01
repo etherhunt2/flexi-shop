@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
@@ -27,80 +27,88 @@ export default function OffersPage() {
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
-  const mockOffersData = [
-    {
-      id: 1,
-      title: 'Flash Sale - Electronics',
-      description: 'Up to 50% off on all electronics items',
-      type: 'flash_sale',
-      discountType: 'percentage',
-      discountValue: 50,
-      startDate: '2024-01-15T00:00:00Z',
-      endDate: '2024-01-20T23:59:59Z',
-      isActive: true,
-      targetAudience: 'all_customers',
-      categories: ['Electronics'],
-      minOrderAmount: 100,
-      usageCount: 1250,
-      conversionRate: 15.5,
-      bannerImage: '/placeholder-banner.jpg',
-      priority: 'high'
-    },
-    {
-      id: 2,
-      title: 'Buy One Get One - Fashion',
-      description: 'Buy any fashion item and get another one free',
-      type: 'bogo',
-      discountType: 'bogo',
-      discountValue: 100,
-      startDate: '2024-01-10T00:00:00Z',
-      endDate: '2024-01-25T23:59:59Z',
-      isActive: true,
-      targetAudience: 'premium_customers',
-      categories: ['Fashion', 'Accessories'],
-      minOrderAmount: 50,
-      usageCount: 890,
-      conversionRate: 22.8,
-      bannerImage: '/placeholder-banner.jpg',
-      priority: 'medium'
-    },
-    {
-      id: 3,
-      title: 'Free Shipping Weekend',
-      description: 'Free shipping on all orders this weekend',
-      type: 'free_shipping',
-      discountType: 'shipping',
-      discountValue: 0,
-      startDate: '2024-01-13T00:00:00Z',
-      endDate: '2024-01-14T23:59:59Z',
-      isActive: false,
-      targetAudience: 'new_customers',
-      categories: [],
-      minOrderAmount: 25,
-      usageCount: 2100,
-      conversionRate: 8.9,
-      bannerImage: '/placeholder-banner.jpg',
-      priority: 'low'
-    },
-    {
-      id: 4,
-      title: 'Clearance Sale - Home & Garden',
-      description: 'Massive clearance on home and garden items',
-      type: 'clearance',
-      discountType: 'percentage',
-      discountValue: 70,
-      startDate: '2024-01-01T00:00:00Z',
-      endDate: '2024-01-31T23:59:59Z',
-      isActive: true,
-      targetAudience: 'all_customers',
-      categories: ['Home & Garden'],
-      minOrderAmount: 0,
-      usageCount: 3400,
-      conversionRate: 35.2,
-      bannerImage: '/placeholder-banner.jpg',
-      priority: 'high'
-    }
-  ]
+  const loadOffers = useCallback(() => {
+    const mockOffersData = [
+      {
+        id: 1,
+        title: 'Flash Sale - Electronics',
+        description: 'Up to 50% off on all electronics items',
+        type: 'flash_sale',
+        discountType: 'percentage',
+        discountValue: 50,
+        startDate: '2024-01-15T00:00:00Z',
+        endDate: '2024-01-20T23:59:59Z',
+        isActive: true,
+        targetAudience: 'all_customers',
+        categories: ['Electronics'],
+        minOrderAmount: 100,
+        usageCount: 1250,
+        conversionRate: 15.5,
+        bannerImage: '/placeholder-banner.jpg',
+        priority: 'high'
+      },
+      {
+        id: 2,
+        title: 'Buy One Get One - Fashion',
+        description: 'Buy any fashion item and get another one free',
+        type: 'bogo',
+        discountType: 'bogo',
+        discountValue: 100,
+        startDate: '2024-01-10T00:00:00Z',
+        endDate: '2024-01-25T23:59:59Z',
+        isActive: true,
+        targetAudience: 'premium_customers',
+        categories: ['Fashion', 'Accessories'],
+        minOrderAmount: 50,
+        usageCount: 890,
+        conversionRate: 22.8,
+        bannerImage: '/placeholder-banner.jpg',
+        priority: 'medium'
+      },
+      {
+        id: 3,
+        title: 'Free Shipping Weekend',
+        description: 'Free shipping on all orders this weekend',
+        type: 'free_shipping',
+        discountType: 'shipping',
+        discountValue: 0,
+        startDate: '2024-01-13T00:00:00Z',
+        endDate: '2024-01-14T23:59:59Z',
+        isActive: false,
+        targetAudience: 'new_customers',
+        categories: [],
+        minOrderAmount: 25,
+        usageCount: 2100,
+        conversionRate: 8.9,
+        bannerImage: '/placeholder-banner.jpg',
+        priority: 'low'
+      },
+      {
+        id: 4,
+        title: 'Clearance Sale - Home & Garden',
+        description: 'Massive clearance on home and garden items',
+        type: 'clearance',
+        discountType: 'percentage',
+        discountValue: 70,
+        startDate: '2024-01-01T00:00:00Z',
+        endDate: '2024-01-31T23:59:59Z',
+        isActive: true,
+        targetAudience: 'all_customers',
+        categories: ['Home & Garden'],
+        minOrderAmount: 0,
+        usageCount: 3400,
+        conversionRate: 35.2,
+        bannerImage: '/placeholder-banner.jpg',
+        priority: 'high'
+      }
+    ]
+
+    setLoading(true)
+    setTimeout(() => {
+      setOffers(mockOffersData)
+      setLoading(false)
+    }, 1000)
+  }, [])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -109,24 +117,16 @@ export default function OffersPage() {
       return
     }
     loadOffers()
-  }, [session, status, router])
-
-  const loadOffers = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setOffers(mockOffersData)
-      setLoading(false)
-    }, 1000)
-  }
+  }, [session, status, router, loadOffers])
 
   const handleOfferAction = (action, offerId) => {
     switch (action) {
       case 'activate':
-        setOffers(offers.map(o => o.id === offerId ? {...o, isActive: true} : o))
+        setOffers(offers.map(o => o.id === offerId ? { ...o, isActive: true } : o))
         toast.success('Offer activated successfully!')
         break
       case 'deactivate':
-        setOffers(offers.map(o => o.id === offerId ? {...o, isActive: false} : o))
+        setOffers(offers.map(o => o.id === offerId ? { ...o, isActive: false } : o))
         toast.warning('Offer deactivated!')
         break
       case 'delete':
@@ -260,7 +260,7 @@ export default function OffersPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <PlayIcon className="w-8 h-8 text-green-600" />
@@ -270,7 +270,7 @@ export default function OffersPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <TargetIcon className="w-8 h-8 text-blue-600" />
@@ -280,7 +280,7 @@ export default function OffersPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <TrendingUpIcon className="w-8 h-8 text-purple-600" />
@@ -325,10 +325,10 @@ export default function OffersPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
-                      {offer.discountType === 'percentage' ? `${offer.discountValue}%` : 
-                       offer.discountType === 'bogo' ? 'BOGO' : 
-                       offer.discountType === 'shipping' ? 'Free Ship' : 
-                       `$${offer.discountValue}`}
+                      {offer.discountType === 'percentage' ? `${offer.discountValue}%` :
+                        offer.discountType === 'bogo' ? 'BOGO' :
+                          offer.discountType === 'shipping' ? 'Free Ship' :
+                            `$${offer.discountValue}`}
                     </div>
                     <div className="text-xs text-gray-500">Min: ${offer.minOrderAmount}</div>
                   </td>

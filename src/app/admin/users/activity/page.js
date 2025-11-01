@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
@@ -16,99 +16,108 @@ export default function UserActivityPage() {
   const [timeRange, setTimeRange] = useState('24h')
   const [selectedUser, setSelectedUser] = useState(null)
 
-  // Mock user activity data
-  const mockActivityData = [
-    {
-      id: 1,
-      userId: 101,
-      userName: 'John Doe',
-      userEmail: 'john.doe@example.com',
-      action: 'product_view',
-      description: 'Viewed iPhone 15 Pro Max',
-      timestamp: '2024-01-15T10:30:00Z',
-      ipAddress: '192.168.1.100',
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      location: 'New York, USA',
-      device: 'Desktop',
-      sessionId: 'sess_123456',
-      metadata: { productId: 1, category: 'Electronics' }
-    },
-    {
-      id: 2,
-      userId: 102,
-      userName: 'Jane Smith',
-      userEmail: 'jane.smith@example.com',
-      action: 'add_to_cart',
-      description: 'Added Samsung Galaxy S24 to cart',
-      timestamp: '2024-01-15T10:25:00Z',
-      ipAddress: '192.168.1.101',
-      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)',
-      location: 'California, USA',
-      device: 'Mobile',
-      sessionId: 'sess_789012',
-      metadata: { productId: 2, quantity: 1 }
-    },
-    {
-      id: 3,
-      userId: 103,
-      userName: 'Mike Johnson',
-      userEmail: 'mike.johnson@example.com',
-      action: 'purchase',
-      description: 'Completed order #ORD-2024-001',
-      timestamp: '2024-01-15T10:20:00Z',
-      ipAddress: '192.168.1.102',
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-      location: 'Texas, USA',
-      device: 'Desktop',
-      sessionId: 'sess_345678',
-      metadata: { orderId: 'ORD-2024-001', amount: 1299.99 }
-    },
-    {
-      id: 4,
-      userId: 101,
-      userName: 'John Doe',
-      userEmail: 'john.doe@example.com',
-      action: 'wishlist_add',
-      description: 'Added MacBook Pro 16" to wishlist',
-      timestamp: '2024-01-15T10:15:00Z',
-      ipAddress: '192.168.1.100',
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      location: 'New York, USA',
-      device: 'Desktop',
-      sessionId: 'sess_123456',
-      metadata: { productId: 3 }
-    },
-    {
-      id: 5,
-      userId: 104,
-      userName: 'Sarah Wilson',
-      userEmail: 'sarah.wilson@example.com',
-      action: 'login',
-      description: 'User logged in',
-      timestamp: '2024-01-15T10:10:00Z',
-      ipAddress: '192.168.1.103',
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      location: 'Florida, USA',
-      device: 'Desktop',
-      sessionId: 'sess_901234',
-      metadata: { loginMethod: 'email' }
-    },
-    {
-      id: 6,
-      userId: 105,
-      userName: 'David Brown',
-      userEmail: 'david.brown@example.com',
-      action: 'search',
-      description: 'Searched for "wireless headphones"',
-      timestamp: '2024-01-15T10:05:00Z',
-      ipAddress: '192.168.1.104',
-      userAgent: 'Mozilla/5.0 (Android 14; Mobile; rv:109.0)',
-      location: 'Nevada, USA',
-      device: 'Mobile',
-      sessionId: 'sess_567890',
-      metadata: { searchQuery: 'wireless headphones', resultsCount: 25 }
-    }
-  ]
+  const loadActivityData = useCallback(() => {
+    // Mock user activity data
+    const mockActivityData = [
+      {
+        id: 1,
+        userId: 101,
+        userName: 'John Doe',
+        userEmail: 'john.doe@example.com',
+        action: 'product_view',
+        description: 'Viewed iPhone 15 Pro Max',
+        timestamp: '2024-01-15T10:30:00Z',
+        ipAddress: '192.168.1.100',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        location: 'New York, USA',
+        device: 'Desktop',
+        sessionId: 'sess_123456',
+        metadata: { productId: 1, category: 'Electronics' }
+      },
+      {
+        id: 2,
+        userId: 102,
+        userName: 'Jane Smith',
+        userEmail: 'jane.smith@example.com',
+        action: 'add_to_cart',
+        description: 'Added Samsung Galaxy S24 to cart',
+        timestamp: '2024-01-15T10:25:00Z',
+        ipAddress: '192.168.1.101',
+        userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)',
+        location: 'California, USA',
+        device: 'Mobile',
+        sessionId: 'sess_789012',
+        metadata: { productId: 2, quantity: 1 }
+      },
+      {
+        id: 3,
+        userId: 103,
+        userName: 'Mike Johnson',
+        userEmail: 'mike.johnson@example.com',
+        action: 'purchase',
+        description: 'Completed order #ORD-2024-001',
+        timestamp: '2024-01-15T10:20:00Z',
+        ipAddress: '192.168.1.102',
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+        location: 'Texas, USA',
+        device: 'Desktop',
+        sessionId: 'sess_345678',
+        metadata: { orderId: 'ORD-2024-001', amount: 1299.99 }
+      },
+      {
+        id: 4,
+        userId: 101,
+        userName: 'John Doe',
+        userEmail: 'john.doe@example.com',
+        action: 'wishlist_add',
+        description: 'Added MacBook Pro 16&quot; to wishlist',
+        timestamp: '2024-01-15T10:15:00Z',
+        ipAddress: '192.168.1.100',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        location: 'New York, USA',
+        device: 'Desktop',
+        sessionId: 'sess_123456',
+        metadata: { productId: 3 }
+      },
+      {
+        id: 5,
+        userId: 104,
+        userName: 'Sarah Wilson',
+        userEmail: 'sarah.wilson@example.com',
+        action: 'login',
+        description: 'User logged in',
+        timestamp: '2024-01-15T10:10:00Z',
+        ipAddress: '192.168.1.103',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        location: 'Florida, USA',
+        device: 'Desktop',
+        sessionId: 'sess_901234',
+        metadata: { loginMethod: 'email' }
+      },
+      {
+        id: 6,
+        userId: 105,
+        userName: 'David Brown',
+        userEmail: 'david.brown@example.com',
+        action: 'search',
+        description: 'Searched for &quot;wireless headphones&quot;',
+        timestamp: '2024-01-15T10:05:00Z',
+        ipAddress: '192.168.1.104',
+        userAgent: 'Mozilla/5.0 (Android 14; Mobile; rv:109.0)',
+        location: 'Nevada, USA',
+        device: 'Mobile',
+        sessionId: 'sess_567890',
+        metadata: { searchQuery: 'wireless headphones', resultsCount: 25 }
+      }
+    ]
+
+    setLoading(true)
+    // Simulate API call
+    setTimeout(() => {
+      setActivities(mockActivityData)
+      setLoading(false)
+    }, 1000)
+  }, [])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -117,16 +126,7 @@ export default function UserActivityPage() {
       return
     }
     loadActivityData()
-  }, [session, status, router])
-
-  const loadActivityData = () => {
-    setLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      setActivities(mockActivityData)
-      setLoading(false)
-    }, 1000)
-  }
+  }, [session, status, router, loadActivityData])
 
   const getActionIcon = (action) => {
     switch (action) {
@@ -214,7 +214,7 @@ export default function UserActivityPage() {
     mobileUsers: activities.filter(a => a.device === 'Mobile').length
   }
 
-  const topAction = Object.entries(stats.topAction).sort(([,a], [,b]) => b - a)[0]
+  const topAction = Object.entries(stats.topAction).sort(([, a], [, b]) => b - a)[0]
 
   if (loading) {
     return (
@@ -264,7 +264,7 @@ export default function UserActivityPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">👥</span>
@@ -274,7 +274,7 @@ export default function UserActivityPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">🔥</span>
@@ -285,7 +285,7 @@ export default function UserActivityPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center">
               <span className="text-2xl">📱</span>

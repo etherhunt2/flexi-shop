@@ -2,24 +2,34 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-import { isValidObjectId } from '@/lib/mongodb-utils'
 
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
-    const { searchParams } = new URL(request.url)
-    const sessionId = searchParams.get('sessionId')
+
+    // Safely parse the URL
+    let url;
+    try {
+      // If request.url is just a path, prepend with base URL
+      if (request.url.startsWith('/')) {
+        const baseUrl = process.env.NEXTAUTH_URL || `https://${process.env.VERCEL_URL}` || 'http://localhost:3000';
+        url = new URL(request.url, baseUrl);
+      } else {
+        url = new URL(request.url);
+      }
+    } catch (error) {
+      console.error('URL parsing error:', error);
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+
+    const sessionId = url.searchParams.get('sessionId')
 
     let where = {}
 
     if (session?.user?.id) {
-      // Validate that userId is a proper MongoDB ObjectId
-      if (!isValidObjectId(session.user.id)) {
-        return NextResponse.json(
-          { error: 'Invalid user ID format' },
-          { status: 400 }
-        )
-      }
       where.userId = session.user.id
     } else if (sessionId) {
       where.sessionId = sessionId
@@ -34,8 +44,8 @@ export async function GET(request) {
           include: {
             brand: true,
             images: {
-              where: {
-                assignProductAttributeId: ""
+              orderBy: {
+                sortOrder: 'asc'
               },
               take: 1
             }
@@ -65,11 +75,12 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
-    const { productId, quantity = 1, attributes, sessionId } = await request.json()
+    const body = await request.json()
+    const { productId, quantity = 1, attributes, sessionId } = body
 
-    if (!productId || !isValidObjectId(productId)) {
+    if (!productId) {
       return NextResponse.json(
-        { error: 'Valid Product ID is required' },
+        { error: 'Product ID is required' },
         { status: 400 }
       )
     }
@@ -96,18 +107,10 @@ export async function POST(request) {
 
     let cartData = {
       productId,
-      quantity,
-      attributes
+      quantity
     }
 
     if (session?.user?.id) {
-      // Validate that userId is a proper MongoDB ObjectId
-      if (!isValidObjectId(session.user.id)) {
-        return NextResponse.json(
-          { error: 'Invalid user ID format' },
-          { status: 400 }
-        )
-      }
       cartData.userId = session.user.id
     } else if (sessionId) {
       cartData.sessionId = sessionId
@@ -121,13 +124,6 @@ export async function POST(request) {
     // Check if item already exists in cart
     let existingWhere = { productId }
     if (session?.user?.id) {
-      // Validate that userId is a proper MongoDB ObjectId
-      if (!isValidObjectId(session.user.id)) {
-        return NextResponse.json(
-          { error: 'Invalid user ID format' },
-          { status: 400 }
-        )
-      }
       existingWhere.userId = session.user.id
     } else if (sessionId) {
       existingWhere.sessionId = sessionId
@@ -148,8 +144,8 @@ export async function POST(request) {
             include: {
               brand: true,
               images: {
-                where: {
-                  assignProductAttributeId: ""
+                orderBy: {
+                  sortOrder: 'asc'
                 },
                 take: 1
               }
@@ -166,8 +162,8 @@ export async function POST(request) {
             include: {
               brand: true,
               images: {
-                where: {
-                  assignProductAttributeId: ""
+                orderBy: {
+                  sortOrder: 'asc'
                 },
                 take: 1
               }

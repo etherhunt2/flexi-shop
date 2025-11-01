@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
@@ -18,28 +18,36 @@ export default function DeliveredOrdersPage() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const mockDeliveredOrders = [
-    {
-      id: 'ORD-2024-011',
-      customerName: 'Sarah Connor',
-      customerEmail: 'sarah.connor@example.com',
-      deliveredDate: '2024-01-14T15:30:00Z',
-      totalAmount: 899.99,
-      rating: 5,
-      review: 'Excellent service and fast delivery!',
-      trackingNumber: 'TRK-111222333'
-    },
-    {
-      id: 'ORD-2024-012',
-      customerName: 'John Matrix',
-      customerEmail: 'john.matrix@example.com',
-      deliveredDate: '2024-01-13T11:20:00Z',
-      totalAmount: 1599.99,
-      rating: 4,
-      review: 'Good product, packaging could be better.',
-      trackingNumber: 'TRK-444555666'
-    }
-  ]
+  const loadOrders = useCallback(() => {
+    const mockDeliveredOrders = [
+      {
+        id: 'ORD-2024-011',
+        customerName: 'Sarah Connor',
+        customerEmail: 'sarah.connor@example.com',
+        deliveredDate: '2024-01-14T15:30:00Z',
+        totalAmount: 899.99,
+        rating: 5,
+        review: 'Excellent service and fast delivery!',
+        trackingNumber: 'TRK-111222333'
+      },
+      {
+        id: 'ORD-2024-012',
+        customerName: 'John Matrix',
+        customerEmail: 'john.matrix@example.com',
+        deliveredDate: '2024-01-13T11:20:00Z',
+        totalAmount: 1599.99,
+        rating: 4,
+        review: 'Good product, packaging could be better.',
+        trackingNumber: 'TRK-444555666'
+      }
+    ]
+
+    setLoading(true)
+    setTimeout(() => {
+      setOrders(mockDeliveredOrders)
+      setLoading(false)
+    }, 1000)
+  }, [])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -48,15 +56,7 @@ export default function DeliveredOrdersPage() {
       return
     }
     loadOrders()
-  }, [session, status, router])
-
-  const loadOrders = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setOrders(mockDeliveredOrders)
-      setLoading(false)
-    }, 1000)
-  }
+  }, [session, status, router, loadOrders])
 
   const handleOrderAction = (action, orderId) => {
     switch (action) {
@@ -177,9 +177,9 @@ export default function DeliveredOrdersPage() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
-                        <StarIcon 
-                          key={i} 
-                          className={`w-4 h-4 ${i < order.rating ? 'text-yellow-400' : 'text-gray-300'}`} 
+                        <StarIcon
+                          key={i}
+                          className={`w-4 h-4 ${i < order.rating ? 'text-yellow-400' : 'text-gray-300'}`}
                         />
                       ))}
                       <span className="ml-1 text-sm text-gray-500">({order.rating})</span>
