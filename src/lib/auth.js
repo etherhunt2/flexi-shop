@@ -54,10 +54,13 @@ export const authOptions = {
             throw new Error('Invalid credentials')
           }
 
+          // Ensure we have a valid name
+          const userName = user.name || user.email.split('@')[0]
+
           return {
             id: user.id, // UUID is already a string
             email: user.email,
-            name: user.name,
+            name: userName,
             userType: credentials.userType || 'user',
             status: user.status
           }
