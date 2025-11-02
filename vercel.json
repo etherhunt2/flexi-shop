@@ -22,7 +22,7 @@
     "NEXT_TELEMETRY_DISABLED": "1",
     "NODE_ENV": "production"
   },
-  "buildCommand": "prisma generate && next build",
+  "buildCommand": "prisma generate && prisma db push && node prisma/seed.js && next build",
   "installCommand": "pnpm install",
   "devCommand": "next dev"
 }

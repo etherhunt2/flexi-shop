@@ -57,7 +57,7 @@ export const authOptions = {
           return {
             id: user.id, // UUID is already a string
             email: user.email,
-            name: credentials.userType === 'admin' ? user.name : `${user.firstname} ${user.lastname}`,
+            name: user.name,
             userType: credentials.userType || 'user',
             status: user.status
           }

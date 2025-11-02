@@ -14,7 +14,7 @@ async function main() {
     create: {
       name: 'Admin User',
       email: 'admin@pixshop.com',
-      password: 12345678,
+      password: adminPassword,
       status: 1
     },
   })

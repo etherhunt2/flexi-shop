@@ -10,7 +10,6 @@ const nextConfig = {
   },
   poweredByHeader: false,
   reactStrictMode: true,
-  optimizeFonts: true,
   compiler: {
     removeConsole: false // Keep console logs for debugging
   },
