@@ -69,6 +69,7 @@ async function main() {
                 name: 'John Doe',
                 email: 'user@pixshop.com',
                 password: userPassword,
+                role: 'user', // Added missing required field
                 phone: '+1234567890',
                 status: 1,
                 address: {
