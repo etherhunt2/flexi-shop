@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-import { validateUUID } from '@/lib/uuid-utils'
+import { isValidUUID } from '@/lib/uuid-utils'
 
 export async function PUT(request, { params }) {
   try {
@@ -15,10 +15,8 @@ export async function PUT(request, { params }) {
     const { id } = params
     const data = await request.json()
 
-    try {
-      validateUUID(id, 'brandId')
-    } catch (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+    if (!isValidUUID(id)) {
+      return NextResponse.json({ error: 'Invalid brand ID format' }, { status: 400 })
     }
 
     // Validate required fields
@@ -92,10 +90,8 @@ export async function DELETE(request, { params }) {
 
     const { id } = params
 
-    try {
-      validateUUID(id, 'brandId')
-    } catch (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+    if (!isValidUUID(id)) {
+      return NextResponse.json({ error: 'Invalid brand ID format' }, { status: 400 })
     }
 
     // Check if brand exists

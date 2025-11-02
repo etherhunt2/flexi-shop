@@ -14,8 +14,8 @@ async function main() {
     create: {
       name: 'Admin User',
       email: 'admin@pixshop.com',
-      username: 'admin',
-      password: adminPassword,
+      password: 12345678,
+      status: 1
     },
   })
 
@@ -25,17 +25,18 @@ async function main() {
     where: { email: 'user@pixshop.com' },
     update: {},
     create: {
-      firstname: 'John',
-      lastname: 'Doe',
+      name: 'John Doe',
       email: 'user@pixshop.com',
-      username: 'johndoe',
       password: userPassword,
-      mobile: '+1234567890',
-      countryCode: 'US',
+      phone: '+1234567890',
       status: 1,
-      ev: 1,
-      sv: 1,
-      kv: 1,
+      address: {
+        street: '123 Main St',
+        city: 'New York',
+        state: 'NY',
+        zip: '10001',
+        country: 'US'
+      }
     },
   })
 
@@ -331,56 +332,21 @@ async function main() {
     }
   }
 
-  // Create shipping methods
-  const shippingMethods = [
-    {
-      name: 'Standard Shipping',
-      duration: '5-7 business days',
-      charge: 9.99,
-      status: 1,
-    },
-    {
-      name: 'Express Shipping',
-      duration: '2-3 business days',
-      charge: 19.99,
-      status: 1,
-    },
-    {
-      name: 'Overnight Shipping',
-      duration: '1 business day',
-      charge: 39.99,
-      status: 1,
-    },
-    {
-      name: 'Free Shipping',
-      duration: '7-10 business days',
-      charge: 0.00,
-      status: 1,
-    },
-  ]
-
-  for (const method of shippingMethods) {
-    await prisma.shippingMethod.upsert({
-      where: { name: method.name },
-      update: {},
-      create: method,
-    })
-  }
-
   // Create a sample coupon
   await prisma.coupon.upsert({
     where: { code: 'WELCOME10' },
     update: {},
     create: {
-      name: 'Welcome Discount',
       code: 'WELCOME10',
-      type: 1, // percentage
-      discount: 10.00,
-      minimumAmount: 50.00,
+      type: 'percentage',
+      value: 10.00,
+      minAmount: 50.00,
       startDate: new Date(),
       endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       usageLimit: 100,
+      usageCount: 0,
       status: 1,
+      productIds: [], // Initialize empty array for MongoDB
     },
   })
 
