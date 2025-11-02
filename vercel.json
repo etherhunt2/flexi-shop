@@ -16,6 +16,6 @@
     "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
   },
   "buildCommand": "pnpm run vercel-build",
-  "installCommand": "pnpm install",
+  "installCommand": "pnpm install --no-frozen-lockfile",
   "devCommand": "next dev"
 }
