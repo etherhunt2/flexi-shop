@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { use } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
@@ -37,8 +36,7 @@ export default function EditProductPage({ params }) {
         metaKeywords: ''
     })
 
-    // Unwrap params using React.use()
-    const { id } = use(params)
+    const id = params.id
 
     // Fetch product data using SWR
     const { data: product, error: productError } = useSWR(

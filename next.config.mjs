@@ -12,21 +12,10 @@ const nextConfig = {
   reactStrictMode: true,
   optimizeFonts: true,
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production'
+    removeConsole: false // Keep console logs for debugging
   },
   experimental: {
-    optimizeCss: false,
-  },
-  webpack: (config, { dev, isServer }) => {
-    if (!dev && !isServer) {
-      Object.assign(config.resolve.alias, {
-        'react/jsx-runtime.js': 'preact/compat/jsx-runtime',
-        react: 'preact/compat',
-        'react-dom/test-utils': 'preact/test-utils',
-        'react-dom': 'preact/compat'
-      });
-    }
-    return config;
+    optimizeCss: false
   }
 };
 
