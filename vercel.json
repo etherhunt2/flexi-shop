@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "framework": "nextjs",
   "builds": [
     {
       "src": "package.json",
@@ -8,14 +9,20 @@
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "/$1"
     }
   ],
   "env": {
-    "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
+    "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true",
+    "NEXT_TELEMETRY_DISABLED": "1",
+    "NODE_ENV": "production"
   },
-  "buildCommand": "pnpm run vercel-build",
-  "installCommand": "pnpm install --no-frozen-lockfile",
+  "buildCommand": "prisma generate && next build",
+  "installCommand": "pnpm install",
   "devCommand": "next dev"
 }
