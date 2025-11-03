@@ -55,7 +55,8 @@ export async function GET(request) {
     })
 
     const total = cartItems.reduce((sum, item) => {
-      return sum + (item.product.discountedPrice || item.product.price) * item.quantity
+      const price = item.product.discountedPrice > 0 ? item.product.discountedPrice : item.product.price
+      return sum + price * item.quantity
     }, 0)
 
     return NextResponse.json({
